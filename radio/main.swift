@@ -83,10 +83,17 @@ struct Radio {
         let softMute = false
         let highCutControl = false
         let stereoNoiseCancelling = false
-
+        let volume = 16 // Int4 "LEV0-3"
     }
 
     let tuningMode: TuningMode = .direct
+
+    struct Status {  // data obtained with read
+        let ready = false
+        let bandLimitReached = false
+        let stereoTuned = false
+
+    }
 
 }
 
