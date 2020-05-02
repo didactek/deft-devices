@@ -29,7 +29,66 @@ import Foundation
 
 // standby...
 
-// read/write take place in 5-byte messages. Semantics differ?
+// read/write take place in 5-byte messages. Semantics differ depending on direction
+
+struct Radio {
+    let standbyMode = false
+
+    let frequency = 94.9  // to tune to, or starting point for search
+
+    enum TuningMode {
+        case search
+        case direct
+//        case preset  // documentation suggests presets, but is unclear on how they are set; and the computer probably is probably a nicer place to keep those anyway
+    }
+
+    enum SearchStopLevel {
+        case low
+        case medium
+        case high
+    }
+    struct Tuner {
+        enum DeemphasisTimeConstant {
+            case μs75
+            case μs50
+        }
+        let dtc: DeemphasisTimeConstant = .μs75
+
+        enum PLLRef {
+            case mHz6_5
+            case disabled
+        }
+        enum Clock {  // combines PLLRef and XTAL
+            case mHz13
+            case kHz32_768
+            case mHz6_5
+        }
+        let clock: Clock = .kHz32_768
+
+        enum BandLimits {
+            case japan
+            case us_europe
+        }
+        let bandLimits: BandLimits = .us_europe
+    }
+
+    struct Audio {
+        // byte 1
+        let muted = false
+        // byte 3
+        let forcedMono = false
+        let muteRight = false
+        let muteLeft = false
+        // byte 4
+        let softMute = false
+        let highCutControl = false
+        let stereoNoiseCancelling = false
+
+    }
+
+    let tuningMode: TuningMode = .direct
+
+}
 
 func pll(mHz frequency: Double) -> (UInt8, UInt8) {
     let intermediateFrequency: Double = 225_000
