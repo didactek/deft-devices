@@ -12,6 +12,15 @@ import Foundation
 class TEA5767_Radio {
     var writeBuffer = TEA5767_WriteLayout()
     var readBuffer = TEA5767_ReadLayout()
+    let link: DataLink
+
+    init(link: DataLink) {
+        self.link = link
+    }
+
+    func flush() {
+        link.write(data: writeBuffer.storage.bytes)
+    }
 
     // FIXME: inject tool to communciate on bus
     // init(bus: ...)

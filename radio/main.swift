@@ -36,5 +36,6 @@ import Foundation
 print(TEA5767_Radio.pll(mHz: 100.0))
 print(TEA5767_Radio.pll(mHz: 94.9))
 
-var radio = TEA5767_WriteLayout()
-print(radio.storage.bytes.map { String(format: "0x%02x", $0) } )
+var printingLink = DataLink()
+var radio = TEA5767_Radio(link: printingLink)
+radio.flush()
