@@ -9,13 +9,23 @@
 
 import Foundation
 
+class TEA5767_Radio {
+    var writeBuffer = TEA5767_WriteLayout()
+    var readBuffer = TEA5767_ReadLayout()
 
-func pll(mHz frequency: Double) -> (UInt8, UInt8) {
-    let intermediateFrequency: Double = 225_000
-    let referenceFrequency: Double = 32_768
-    let highSideInjection = 4 * (frequency * 1e6 + intermediateFrequency) / referenceFrequency
+    // FIXME: inject tool to communciate on bus
+    // init(bus: ...)
 
-    let n = Int(highSideInjection)
-    let split = n.quotientAndRemainder(dividingBy: 256)
-    return (UInt8(split.quotient), UInt8(split.remainder))
+    static func pll(mHz frequency: Double) -> (UInt8, UInt8) {
+        let intermediateFrequency: Double = 225_000
+        let referenceFrequency: Double = 32_768
+        let highSideInjection = 4 * (frequency * 1e6 + intermediateFrequency) / referenceFrequency
+
+        let n = Int(highSideInjection)
+        let split = n.quotientAndRemainder(dividingBy: 256)
+        return (UInt8(split.quotient), UInt8(split.remainder))
+    }
 }
+
+
+
