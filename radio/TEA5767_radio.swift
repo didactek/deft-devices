@@ -18,12 +18,19 @@ class TEA5767_Radio {
         self.link = link
     }
 
-    func flush() {
+    func executeRequests() {
         link.write(data: writeBuffer.storage.bytes)
     }
 
-    // FIXME: inject tool to communciate on bus
-    // init(bus: ...)
+    func updateStatus() {
+        link.read(data: &readBuffer.storage.bytes)
+    }
+
+    func tuneTo(mHz: Double) {
+        let (hi, lo) = Self.pll(mHz: mHz)
+        writeBuffer.pllHi = hi
+        writeBuffer.pllLo = lo
+    }
 
     static func pll(mHz frequency: Double) -> (UInt8, UInt8) {
         let intermediateFrequency: Double = 225_000

@@ -15,6 +15,6 @@ class DataLink {
     }
 
     func read( data: inout [UInt8]) {
-
+        print("not simulating data read")
     }
 }

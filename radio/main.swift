@@ -32,10 +32,13 @@ import Foundation
 // read/write take place in 5-byte messages. Semantics differ depending on direction
 
 
-
-print(TEA5767_Radio.pll(mHz: 100.0))
-print(TEA5767_Radio.pll(mHz: 94.9))
-
 var printingLink = DataLink()
 var radio = TEA5767_Radio(link: printingLink)
-radio.flush()
+
+radio.updateStatus()
+radio.tuneTo(mHz: 100.0)
+radio.executeRequests()
+radio.tuneTo(mHz: 94.0)
+radio.executeRequests()
+radio.tuneTo(mHz: 91.3)
+radio.executeRequests()
