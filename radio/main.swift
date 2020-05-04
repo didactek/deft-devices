@@ -31,70 +31,102 @@ import Foundation
 
 // read/write take place in 5-byte messages. Semantics differ depending on direction
 
-struct Radio {
-    let standbyMode = false
+class TEA5767_WriteLayout: BitStorageCore {
+    @position(SubByte(ofByte: 4, bit: 6))
+    var standbyMode = false
 
-    let frequency = 94.9  // to tune to, or starting point for search
+    @position(SubByte(ofByte: 1, msb: 5, lsb: 0))
+    var pllHi: UInt8 = 0
 
-    enum TuningMode {
-        case search
-        case direct
+    @position(SubByte(ofByte: 2, msb: 7, lsb: 0))
+    var pllLo: UInt8 = 0
+
+    enum TuningMode: UInt8 {
+        case search = 1
+        case direct = 0
 //        case preset  // documentation suggests presets, but is unclear on how they are set; and the computer probably is probably a nicer place to keep those anyway
     }
+    @position(SubByte(ofByte: 2, bit: 6))
+    var searchMode: TuningMode = .direct
 
-    enum SearchStopLevel {
-        case low
-        case medium
-        case high
+    enum SearchDirection: UInt8 {
+        case up = 1
+        case down = 0
     }
-    struct Tuner {
-        enum DeemphasisTimeConstant {
-            case μs75
-            case μs50
-        }
-        let dtc: DeemphasisTimeConstant = .μs75
+    @position(SubByte(ofByte: 2, bit: 6))
+    var searchDirection: SearchDirection = .up
 
-        enum PLLRef {
+    enum SearchStopLevel: UInt8 {
+        case low = 0b01
+        case medium = 0b10
+        case high = 0b11
+    }
+    @position(SubByte(ofByte: 3, msb: 6, lsb: 5))
+    var searchStopLevel: SearchStopLevel = .high
+
+    struct Tuner {
+        #if false  // the semantics from the clock table are more relevant to our use
+        enum PLLRef: UInt8 {
             case mHz6_5
             case disabled
         }
-        enum Clock {  // combines PLLRef and XTAL
-            case mHz13
-            case kHz32_768
-            case mHz6_5
-        }
-        let clock: Clock = .kHz32_768
+        @position(SubByte(ofByte: 5, bit: 7))
+        var pllRef: PLLRef = .mHz6_5
 
-        enum BandLimits {
-            case japan
-            case us_europe
+        enum DeemphasisTimeConstant: UInt8 {
+            case μs75 = 1
+            case μs50 = 0
         }
-        let bandLimits: BandLimits = .us_europe
+        @position(SubByte(ofByte: 5, bit: 6))
+        var dtc: DeemphasisTimeConstant = .μs75
+        #else
+        enum Clock: UInt8 {  // combines PLLRef and XTAL
+            case mHz13 = 0b00
+            case kHz32_768 = 0b01
+            case mHz6_5 = 0b10
+            // 0b10 disallowed
+        }
+        @position(SubByte(ofByte: 5, msb: 7, lsb: 6))
+        var clock: Clock = .kHz32_768
+        #endif
+
+        enum BandLimits: UInt8 {
+            case japan = 1
+            case us_europe = 0
+        }
+        @position(SubByte(ofByte: 4, bit: 5))
+        var bandLimits: BandLimits = .us_europe
     }
+    var tuner = Tuner()
 
     struct Audio {
-        // byte 1
-        let muted = false
-        // byte 3
-        let forcedMono = false
-        let muteRight = false
-        let muteLeft = false
-        // byte 4
-        let softMute = false
-        let highCutControl = false
-        let stereoNoiseCancelling = false
-        let volume = 16 // Int4 "LEV0-3"
+        @position(SubByte(ofByte: 1, bit: 7))
+        var muted = false
+
+        @position(SubByte(ofByte: 3, bit: 3))
+        var forcedMono = false
+        @position(SubByte(ofByte: 3, bit: 2))
+        var muteRight = false
+        @position(SubByte(ofByte: 3, bit: 1))
+        var muteLeft = false
+
+        @position(SubByte(ofByte: 4, bit: 3))
+        var softMute = false
+        @position(SubByte(ofByte: 4, bit: 2))
+        var highCutControl = false
+        @position(SubByte(ofByte: 4, bit: 1))
+        var stereoNoiseCancelling = false
     }
+    var audio = Audio()
+}
 
-    let tuningMode: TuningMode = .direct
 
+class TEA5767_ReadLayout: BitStorageCore {
     struct Status {  // data obtained with read
         let ready = false
         let bandLimitReached = false
         let stereoTuned = false
-
     }
-
 }
 
 func pll(mHz frequency: Double) -> (UInt8, UInt8) {
@@ -110,3 +142,5 @@ func pll(mHz frequency: Double) -> (UInt8, UInt8) {
 print(pll(mHz: 100.0))
 print(pll(mHz: 94.9))
 
+var radio = TEA5767_WriteLayout()
+print(radio.storage.bytes.map { String(format: "0x%02x", $0) } )
