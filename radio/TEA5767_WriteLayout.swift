@@ -46,30 +46,36 @@ class TEA5767_WriteLayout: BitStorageCore {
     var searchStopLevel: SearchStopLevel = .high
 
     struct Tuner {
-        #if false  // the semantics from the clock table are more relevant to our use
         enum PLLRef: UInt8 {
-            case mHz6_5
-            case disabled
+            case mHz6_5 = 1
+            case disabled = 0
         }
         @position(SubByte(ofByte: 5, bit: 7))
-        var pllRef: PLLRef = .mHz6_5
+        var pllRef: PLLRef = .disabled
+
+        @position(SubByte(ofByte: 4, bit: 4))
+        var xtal: UInt8 = 1
 
         enum DeemphasisTimeConstant: UInt8 {
             case μs75 = 1
             case μs50 = 0
         }
         @position(SubByte(ofByte: 5, bit: 6))
-        var dtc: DeemphasisTimeConstant = .μs75
-        #else
-        enum Clock: UInt8 {  // combines PLLRef and XTAL
-            case mHz13 = 0b00
-            case kHz32_768 = 0b01
-            case mHz6_5 = 0b10
-            // 0b10 disallowed
+        var dtc: DeemphasisTimeConstant = .μs50
+
+        enum LocalOscillatorInjection: UInt8 {
+            case highSide = 1
+            case lowSide = 0
         }
-        @position(SubByte(ofByte: 5, msb: 7, lsb: 6))
-        var clock: Clock = .kHz32_768
-        #endif
+        @position(SubByte(ofByte: 3, bit: 4))
+        var injection: LocalOscillatorInjection = .highSide
+
+//        enum Clock {  // combines PLLRef and XTAL, but they are non-adjacent
+//            case mHz13
+//            case kHz32_768
+//            case mHz6_5
+//            // 0b10 disallowed
+//        }
 
         enum BandLimits: UInt8 {
             case japan = 1
