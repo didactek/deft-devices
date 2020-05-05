@@ -32,7 +32,8 @@ import Foundation
 // read/write take place in 5-byte messages. Semantics differ depending on direction
 
 
-var printingLink = DataLink()
+var printingLink = I2CToolsLink(busID: 1, nodeAddress: 0x60)
+//var printingLink = DataLink()
 var radio = TEA5767_Radio(link: printingLink)
 
 radio.updateStatus()
@@ -42,3 +43,4 @@ radio.tuneTo(mHz: 94.9)
 radio.executeRequests()
 radio.tuneTo(mHz: 91.3)
 radio.executeRequests()
+radio.updateStatus()
