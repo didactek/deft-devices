@@ -34,58 +34,58 @@ class MCP9808_Registers: BitStorageCore {
         case C3 = 0b10
         case C6 = 0b11
     }
-    @position(SubByte(ofByte: 1, msb: 2, lsb: 1))
+    @position(ofByte: 1, msb: 2, lsb: 1)
     var tHyst: LimitHysteresis = .C0
 
     enum PowerMode: UInt8 {
         case continuousConversion = 0
         case shutdown = 1
     }
-    @position(SubByte(ofByte: 1, bit: 0))
+    @position(ofByte: 1, bit: 0)
     var shdn: PowerMode = .continuousConversion
 
-    @position(SubByte(ofByte: 2, bit: 7))
+    @position(ofByte: 2, bit: 7)
     var criticalTemperatureLock = false
 
-    @position(SubByte(ofByte: 2, bit: 6))
+    @position(ofByte: 2, bit: 6)
     var windowTemperatureLock = false
 
     enum InterruptClear: UInt8 {
         case noEffect = 0
         case clearInterruptOutput = 1
     }
-    @position(SubByte(ofByte: 2, bit: 5))
+    @position(ofByte: 2, bit: 5)
     var intClear: InterruptClear = .noEffect
 
-    @position(SubByte(ofByte: 2, bit: 4))
+    @position(ofByte: 2, bit: 4)
     var alertOutputStatus = false
 
     enum AlertControl: UInt8 {
         case disabled = 0
         case enabled = 1
     }
-    @position(SubByte(ofByte: 2, bit: 3))
+    @position(ofByte: 2, bit: 3)
     var alertControl: AlertControl = .disabled
 
     enum AlertSelect: UInt8 {
         case upperLowerCrit = 0
         case critOnly = 1
     }
-    @position(SubByte(ofByte: 2, bit: 2))
+    @position(ofByte: 2, bit: 2)
     var alertSelect: AlertSelect = .upperLowerCrit
 
     enum AlertPolarity: UInt8 {
         case activeLow = 0
         case activeHigh = 1
     }
-    @position(SubByte(ofByte: 2, bit: 1))
+    @position(ofByte: 2, bit: 1)
     var alertPolarity: AlertPolarity = .activeLow
 
     enum AlertMode: UInt8 {
         case comparatorOutput = 0
         case interruptOutput = 1
     }
-    @position(SubByte(ofByte: 2, bit: 1))
+    @position(ofByte: 2, bit: 1)
     var alertMode: AlertMode = .comparatorOutput
 
     // FIXME: refactor format definition used in three registers
