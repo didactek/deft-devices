@@ -17,7 +17,7 @@ class TEA5767_WriteLayout: BitStorageCore {
     @position(ofByte: 1, bit: 7)
     var muted = false
 
-    enum TuningMode: UInt8 {
+    enum TuningMode: UInt8, BitEmbeddable {
         case search = 1
         case direct = 0
         //        case preset  // documentation suggests presets, but is unclear on how they are set; and the computer probably is probably a nicer place to keep those anyway
