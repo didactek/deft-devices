@@ -10,19 +10,19 @@
 import Foundation
 
 class DataLink {
-    func write(data: [UInt8], count: Int) {
+    func write(data: Data, count: Int) {
         print(data.map { String(format: "0x%02x", $0) } )
     }
 
-    final func write(data: [UInt8]) {
+    final func write(data: Data) {
         write(data: data, count: data.count)
     }
 
-    func read(data: inout [UInt8], count: Int) {
+    func read(data: inout Data, count: Int) {
         print("not simulating data read")
     }
 
-    final func read(data: inout [UInt8]) {
+    final func read(data: inout Data) {
         read(data: &data, count: data.count)
     }
 }

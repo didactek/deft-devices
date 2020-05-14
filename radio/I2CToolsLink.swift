@@ -18,7 +18,7 @@ class I2CToolsLink: DataLink {
         self.nodeAddress = nodeAddress  // FIXME: should there be additional protection here?
     }
 
-    override func write(data: [UInt8], count: Int) {
+    override func write(data: Data, count: Int) {
         assert(count >= 0)
         assert(count <= data.count)
 
@@ -26,7 +26,7 @@ class I2CToolsLink: DataLink {
         print("/usr/sbin/i2ctransfer -y \(busID) w\(count)@\(nodeAddress) \(hexFormattedBytes)")
     }
 
-    override func read(data: inout [UInt8], count: Int) {
+    override func read(data: inout Data, count: Int) {
         assert(count >= 0)
         if (data.count < count) {
             let shortfall = count - data.count
