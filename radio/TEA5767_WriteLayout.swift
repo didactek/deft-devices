@@ -35,14 +35,14 @@ class TEA5767_WriteLayout: BitStorageCore {
 
 
     // BYTE 3
-    enum SearchDirection: UInt8 {
+    enum SearchDirection: UInt8, BitEmbeddable {
         case up = 1
         case down = 0
     }
     @position(ofByte: 3, bit: 7)
     var searchDirection: SearchDirection = .up
 
-    enum SearchStopLevel: UInt8 {
+    enum SearchStopLevel: UInt8, BitEmbeddable {
         case low = 0b01
         case medium = 0b10
         case high = 0b11
@@ -50,7 +50,7 @@ class TEA5767_WriteLayout: BitStorageCore {
     @position(ofByte: 3, msb: 6, lsb: 5)
     var searchStopLevel: SearchStopLevel = .high
 
-    enum LocalOscillatorInjection: UInt8 {
+    enum LocalOscillatorInjection: UInt8, BitEmbeddable {
         case highSide = 1
         case lowSide = 0
     }
@@ -77,7 +77,7 @@ class TEA5767_WriteLayout: BitStorageCore {
     @position(ofByte: 4, bit: 6)
     var standbyMode = false
 
-    enum BandLimits: UInt8 {
+    enum BandLimits: UInt8, BitEmbeddable {
         case japan = 1
         case us_europe = 0
     }
@@ -97,14 +97,14 @@ class TEA5767_WriteLayout: BitStorageCore {
     var stereoNoiseCancelling = false
 
     // BYTE 5
-    enum PLLRef: UInt8 {
+    enum PLLRef: UInt8, BitEmbeddable {
         case mHz6_5 = 1
         case disabled = 0
     }
     @position(ofByte: 5, bit: 7)
     var pllRef: PLLRef = .disabled
 
-    enum DeemphasisTimeConstant: UInt8 {
+    enum DeemphasisTimeConstant: UInt8, BitEmbeddable {
         case μs75 = 1
         case μs50 = 0
     }

@@ -28,7 +28,7 @@ class MCP9808_Registers: BitStorageCore {
 
     // FIXME: BitStorageCore needs some adjustment to have this work well as a map of 2-wide-bytes (or wider)
 
-    enum LimitHysteresis: UInt8 {
+    enum LimitHysteresis: UInt8, BitEmbeddable {
         case C0 = 0b00
         case C1_5 = 0b01
         case C3 = 0b10
@@ -37,7 +37,7 @@ class MCP9808_Registers: BitStorageCore {
     @position(ofByte: 1, msb: 2, lsb: 1)
     var tHyst: LimitHysteresis = .C0
 
-    enum PowerMode: UInt8 {
+    enum PowerMode: UInt8, BitEmbeddable {
         case continuousConversion = 0
         case shutdown = 1
     }
@@ -50,7 +50,7 @@ class MCP9808_Registers: BitStorageCore {
     @position(ofByte: 2, bit: 6)
     var windowTemperatureLock = false
 
-    enum InterruptClear: UInt8 {
+    enum InterruptClear: UInt8, BitEmbeddable {
         case noEffect = 0
         case clearInterruptOutput = 1
     }
@@ -60,28 +60,28 @@ class MCP9808_Registers: BitStorageCore {
     @position(ofByte: 2, bit: 4)
     var alertOutputStatus = false
 
-    enum AlertControl: UInt8 {
+    enum AlertControl: UInt8, BitEmbeddable {
         case disabled = 0
         case enabled = 1
     }
     @position(ofByte: 2, bit: 3)
     var alertControl: AlertControl = .disabled
 
-    enum AlertSelect: UInt8 {
+    enum AlertSelect: UInt8, BitEmbeddable {
         case upperLowerCrit = 0
         case critOnly = 1
     }
     @position(ofByte: 2, bit: 2)
     var alertSelect: AlertSelect = .upperLowerCrit
 
-    enum AlertPolarity: UInt8 {
+    enum AlertPolarity: UInt8, BitEmbeddable {
         case activeLow = 0
         case activeHigh = 1
     }
     @position(ofByte: 2, bit: 1)
     var alertPolarity: AlertPolarity = .activeLow
 
-    enum AlertMode: UInt8 {
+    enum AlertMode: UInt8, BitEmbeddable {
         case comparatorOutput = 0
         case interruptOutput = 1
     }
