@@ -32,7 +32,7 @@ import Foundation
 // read/write take place in 5-byte messages. Semantics differ depending on direction
 
 
-var printingLink = I2CToolsLink(busID: 1, nodeAddress: 0x60)
+var printingLink = try! I2CToolsLink(busID: 1, nodeAddress: 0x60)
 //var printingLink = DataLink()
 var radio = TEA5767_Radio(link: printingLink)
 

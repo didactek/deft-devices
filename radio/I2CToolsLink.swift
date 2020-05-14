@@ -13,7 +13,13 @@ class I2CToolsLink: DataLink {
     let busID: Int
     let nodeAddress: Int
 
-    init(busID: Int, nodeAddress: Int) {
+    enum RangeError: Error {
+        case unsafeDeviceAddress  // potential system devices: RAM controllers and the like
+    }
+    init(busID: Int, nodeAddress: Int) throws {
+        guard nodeAddress > 0x02 && nodeAddress < 0x78 else {
+            throw RangeError.unsafeDeviceAddress
+        }
         self.busID = busID
         self.nodeAddress = nodeAddress  // FIXME: should there be additional protection here?
     }
