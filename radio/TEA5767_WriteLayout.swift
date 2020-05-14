@@ -13,6 +13,8 @@ import Foundation
 // datasheet at https://www.voti.nl/docs/TEA5767.pdf
 
 class TEA5767_WriteLayout: BitStorageCore {
+    // Datasheet p.14
+
     // BYTE 1
     @position(ofByte: 1, bit: 7)
     var muted = false
@@ -69,6 +71,7 @@ class TEA5767_WriteLayout: BitStorageCore {
     @position(ofByte: 3, bit: 0)
     var softwareProgrammablePort1 = false
 
+    // Datasheet p.15
 
     // BYTE 4
     @position(ofByte: 4, bit: 7)
