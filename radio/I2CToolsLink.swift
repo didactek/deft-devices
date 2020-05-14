@@ -21,7 +21,7 @@ class I2CToolsLink: DataLink {
             throw RangeError.unsafeDeviceAddress
         }
         self.busID = busID
-        self.nodeAddress = nodeAddress  // FIXME: should there be additional protection here?
+        self.nodeAddress = nodeAddress
     }
 
     override func write(data: Data, count: Int) {
