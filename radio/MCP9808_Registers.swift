@@ -11,9 +11,17 @@ import Foundation
 
 // MCP9808 I2C temperature sensor
 // datasheet at https://ww1.microchip.com/downloads/en/DeviceDoc/25095A.pdf
+// datasheet version: DS25095A
+// (The datasheet text and diagrams do not always agree about bit widths and
+// other minor details. Diagrams are preferred in these conflicts.)
 
-class MCP9808_Registers: BitStorageCore {
-    enum RegisterPointer: UInt8 {
+class MCP9808_PointerRegister: BitStorageCore {
+    // REGISTER 5-1
+
+    // MSB/Byte1 unused
+
+    // Datasheet p.16
+    enum RegisterPointer: UInt8, BitEmbeddable {
         // case reserved = 0b0000  // RFU, Reserved for Future Use (Read-Only register)
         case configuration = 0b0001  // Configuration register (CONFIG)
         case alertUpper = 0b0010  // Alert Temperature Upper Boundary Trip register (TUPPER)
@@ -25,9 +33,14 @@ class MCP9808_Registers: BitStorageCore {
         case resolution = 0b1000  // Resolution register
         // case reserved = 0b1xxx  // Reserved(1)
     }
+    @position(ofByte: 2, msb: 4, lsb: 0)
+    var command: RegisterPointer = .temperature
+}
 
-    // FIXME: BitStorageCore needs some adjustment to have this work well as a map of 2-wide-bytes (or wider)
 
+class MCP9808_ConfigRegister: BitStorageCore {
+    // REGISTER 5-2
+    // Datasheet p.18
     enum LimitHysteresis: UInt8, BitEmbeddable {
         case C0 = 0b00
         case C1_5 = 0b01
@@ -87,8 +100,78 @@ class MCP9808_Registers: BitStorageCore {
     }
     @position(ofByte: 2, bit: 1)
     var alertMode: AlertMode = .comparatorOutput
+}
 
-    // FIXME: refactor format definition used in three registers
-    // FIXME: need to be able to describe a signed number of bits
-    // FIXME: should be a better way of spanning bytes
+class MCP9808_TemperatureLimitRegister: BitStorageCore {
+    // REGISTER 5-3
+    // Datasheet p.22
+
+    // FIXME: this is a fixed-point fractional with two bits. @position
+    // doesn't support floats/fractionals, so we read all the bits and
+    // will have to divide by 4 when interpreting as Celsius.
+    // Alternatively, we could have read down to lsb 4 and ignored the
+    // fractional part. Splitting them into decimal and fraction fields
+    // is unwise because the fractional interpretation varies by the sign.
+    @position(significantByte: 1, msb: 4, minorByte: 2, lsb: 2, .extendNegativeBit)
+    var temperatureQuarterCelsius: Int = 0
+}
+
+class MCP9808_AmbientTemperatureRegister: BitStorageCore {
+    // REGISTER 5-4
+    // Datasheet p.24
+
+    enum LimitFlag: UInt8, BitEmbeddable {
+        case withinLimit = 0
+        case outsideLimit = 1
+    }
+
+    @position(ofByte: 1, bit: 7)
+    var AmbientVsCritical: LimitFlag = .withinLimit
+
+    @position(ofByte: 1, bit: 6)
+    var AmbientVsUpper: LimitFlag = .withinLimit
+
+    @position(ofByte: 1, bit: 5)
+    var AmbientVsLower: LimitFlag = .withinLimit
+
+
+    @position(significantByte: 1, msb: 4, minorByte: 2, lsb: 0, .extendNegativeBit)
+    var temperatureSixteenthCelsius: Int = 0
+}
+
+class MCP9808_ManufacturerIDRegister: BitStorageCore {
+    // REGISTER 5-5
+    // Datasheet p.27
+    @position(significantByte: 1, msb: 7, minorByte: 2, lsb: 0)
+    var manufacturerID: Int = 0x0054 // expected
+}
+
+class MCP9808_DeviceIDandRevisionRegister: BitStorageCore {
+    // REGISTER 5-6
+    // Datasheet p.28
+
+    // FIXME: should there be full-byte shortcuts?
+    @position(ofByte: 1, msb: 7, lsb: 0)
+    var deviceID: Int = 0
+
+    @position(ofByte: 2, msb: 7, lsb: 0)
+    var revision: Int = 0
+}
+
+class MCP9808_ResolutionRegister: BitStorageCore {
+    // REGISTER 5-7
+    // Datasheet p.29
+
+    enum Resolution: UInt8, BitEmbeddable {
+        case c0_5    = 0b00  // +0.5°C (tCONV = 30 ms typical)
+        case c0_25   = 0b01  // +0.25°C (tCONV = 65 ms typical)
+        case c0_125  = 0b10  // +0.125°C (tCONV = 130 ms typical)
+        case c0_0625 = 0b11  // +0.0625°C (power-up default, tCONV = 250 ms typical)
+    }
+
+    // FIXME: the MCP9808 is word-oriented, so the significant byte (known here
+    // as "byte 1"; in the datasheet as "bits 8-15") is unused.
+    // Don't forget the minor bits are in byte 2!
+    @position(ofByte: 2, msb: 1, lsb: 0)
+    var deviceID: Resolution = .c0_0625
 }
