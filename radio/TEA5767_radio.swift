@@ -10,6 +10,9 @@
 import Foundation
 
 class TEA5767_Radio {
+    static let intermediateFrequency: Double = 225_000
+    static let referenceFrequency: Double = 32_768
+
     var writeBuffer = TEA5767_WriteLayout()
     var readBuffer = TEA5767_ReadLayout()
     let link: DataLink
@@ -27,19 +30,21 @@ class TEA5767_Radio {
     }
 
     func tuneTo(mHz: Double) {
-        let (hi, lo) = Self.pll(mHz: mHz)
-        writeBuffer.pllHi = hi
-        writeBuffer.pllLo = lo
+        writeBuffer.pll = Self.pll(mHz: mHz)
     }
 
-    static func pll(mHz frequency: Double) -> (UInt8, UInt8) {
-        let intermediateFrequency: Double = 225_000
-        let referenceFrequency: Double = 32_768
-        let highSideInjection = 4 * (frequency * 1e6 + intermediateFrequency) / referenceFrequency
+    func tuning() -> Double {
+        return Self.carrierMHz(highSideInjection: readBuffer.pll)
+    }
 
-        let n = Int(highSideInjection)
-        let split = n.quotientAndRemainder(dividingBy: 256)
-        return (UInt8(split.quotient), UInt8(split.remainder))
+    static func pll(mHz frequency: Double) -> Int {
+        let highSideInjection = 4 * (frequency * 1e6 + intermediateFrequency) / referenceFrequency
+        return Int(highSideInjection)
+    }
+
+    static func carrierMHz(highSideInjection: Int) -> Double {
+        let frequency = (Double(highSideInjection) * referenceFrequency / 4) - intermediateFrequency
+        return frequency / 1e6
     }
 }
 

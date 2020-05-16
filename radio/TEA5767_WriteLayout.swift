@@ -27,13 +27,9 @@ class TEA5767_WriteLayout: BitStorageCore {
     @position(ofByte: 1, bit: 6)
     var searchMode: TuningMode = .direct
 
-    @position(ofByte: 1, msb: 5, lsb: 0)
-    var pllHi: UInt8 = 0
-
-
-    // BYTE 2
-    @position(ofByte: 2, msb: 7, lsb: 0)
-    var pllLo: UInt8 = 0
+    // BYTE 2 (and a little left over from 1)
+    @position(significantByte: 1, msb: 5, minorByte: 2, lsb: 0)
+    var pll: Int = 0
 
 
     // BYTE 3
