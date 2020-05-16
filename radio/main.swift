@@ -30,17 +30,26 @@ import Foundation
 // standby...
 
 // read/write take place in 5-byte messages. Semantics differ depending on direction
+let pi = SSHLink()
 
-
-var printingLink = try! I2CToolsLink(busID: 1, nodeAddress: 0x60)
+var printingLink = try! I2CToolsLink(transport: pi, busID: 1, nodeAddress: 0x60)
 //var printingLink = DataLink()
 var radio = TEA5767_Radio(link: printingLink)
 
 radio.updateStatus()
 radio.tuneTo(mHz: 100.0)
+print(radio.readBuffer.stereoTuned)
 radio.executeRequests()
-radio.tuneTo(mHz: 94.9)
-radio.executeRequests()
-radio.tuneTo(mHz: 91.3)
+radio.tuneTo(mHz: 88.9)
 radio.executeRequests()
 radio.updateStatus()
+while !radio.readBuffer.readyFlag {
+    radio.updateStatus()
+}
+// I get nothing for stereoTuned or chipIdentification; I wonder if I have a counterfeit chip:
+sleep(1)
+radio.updateStatus()
+print(radio.readBuffer.stereoTuned)
+print(radio.readBuffer.chipIdentification)
+
+pi.stop()
