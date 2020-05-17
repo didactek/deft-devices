@@ -10,7 +10,7 @@
 import Foundation
 
 /// Executes commands over an ssh session.
-class SSHLink {
+class SSHTransport: ShellTransport {
     let executable = URL(fileURLWithPath: "/usr/bin/ssh")
     let host = "raspberrypi.local"
     let user = "pi"

@@ -12,12 +12,12 @@ import Foundation
 class I2CToolsLink: DataLink {
     let busID: Int
     let nodeAddress: Int
-    let transport: SSHLink
+    let transport: ShellTransport
 
     enum RangeError: Error {
         case unsafeDeviceAddress  // potential system devices: RAM controllers and the like
     }
-    init(transport: SSHLink, busID: Int, nodeAddress: Int) throws {
+    init(transport: ShellTransport, busID: Int, nodeAddress: Int) throws {
         guard nodeAddress > 0x02 && nodeAddress < 0x78 else {
             throw RangeError.unsafeDeviceAddress
         }

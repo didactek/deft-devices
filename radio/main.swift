@@ -30,7 +30,7 @@ import Foundation
 // standby...
 
 // read/write take place in 5-byte messages. Semantics differ depending on direction
-let pi = SSHLink()
+let pi = SSHTransport()
 
 var link = try! I2CToolsLink(transport: pi, busID: 1, nodeAddress: 0x60)
 //var link = DataLink()  // for just printing requests
