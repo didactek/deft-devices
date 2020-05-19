@@ -27,7 +27,7 @@ class I2CToolsLinkTests: XCTestCase {
     }
 
     override func tearDownWithError() throws {
-        // Put teardown code here. This method is called aftetransport: <#ShellTransport#>, r the invocation of each test method in the class.
+        // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
     func testDeviceAddressRangeSafety() throws {
