@@ -21,7 +21,7 @@ import Foundation
 // other minor details. Diagrams are preferred in these conflicts.)
 
 // FIXME: 8-bit
-class MCP9808_PointerRegister: BitStorageCore {
+class MCP9808_PointerRegister: ByteArrayDescription {
     // REGISTER 5-1
 
     // Datasheet p.16
@@ -162,7 +162,7 @@ class MCP9808_DeviceIDandRevisionRegister: SMBusWord {
 }
 
 // FIXME: 8-bit
-class MCP9808_ResolutionRegister: BitStorageCore {
+class MCP9808_ResolutionRegister: ByteArrayDescription {
     // REGISTER 5-7
     // Datasheet p.29
 

@@ -12,7 +12,7 @@ import Foundation
 
 // datasheet at https://www.voti.nl/docs/TEA5767.pdf
 
-class TEA5767_WriteLayout: BitStorageCore {
+class TEA5767_WriteLayout: ByteArrayDescription {
     // Datasheet p.14
 
     // BYTE 1

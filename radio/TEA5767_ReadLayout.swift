@@ -11,7 +11,7 @@ import Foundation
 
 // datasheet at https://www.voti.nl/docs/TEA5767.pdf
 
-class TEA5767_ReadLayout: BitStorageCore {
+class TEA5767_ReadLayout: ByteArrayDescription {
     // Datasheet p.16
     @position(ofByte: 1, bit: 7)
     var readyFlag = true
