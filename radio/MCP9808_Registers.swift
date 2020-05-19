@@ -7,6 +7,11 @@
 //  SPDX-License-Identifier: Apache-2.0
 //
 
+// FIXME FIXME FIXME!!!!
+// DO NOT USE WITH SMBusWord IMPLEMENTATION!
+// Chip speaks network byte order (big-endian).
+// SMBus is little-endian.
+
 import Foundation
 
 // MCP9808 I2C temperature sensor
