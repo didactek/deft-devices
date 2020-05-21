@@ -7,11 +7,6 @@
 //  SPDX-License-Identifier: Apache-2.0
 //
 
-// FIXME FIXME FIXME!!!!
-// DO NOT USE WITH SMBusWord IMPLEMENTATION!
-// Chip speaks network byte order (big-endian).
-// SMBus is little-endian.
-
 import Foundation
 
 // MCP9808 I2C temperature sensor
@@ -20,8 +15,8 @@ import Foundation
 // (The datasheet text and diagrams do not always agree about bit widths and
 // other minor details. Diagrams are preferred in these conflicts.)
 
-// FIXME: 8-bit
-class MCP9808_PointerRegister: ByteArrayDescription {
+
+class MCP9808_PointerRegister: ByteDescription {
     // REGISTER 5-1
 
     // Datasheet p.16
@@ -37,12 +32,12 @@ class MCP9808_PointerRegister: ByteArrayDescription {
         case resolution = 0b1000  // Resolution register
         // case reserved = 0b1xxx  // Reserved(1)
     }
-    @Position(ofByte: 1, msb: 4, lsb: 0)
+    @Position(msb: 4, lsb: 0)
     var command: RegisterPointer = .temperature
 }
 
 
-class MCP9808_ConfigRegister: SMBusWord {
+class MCP9808_ConfigRegister: WordDescription {
     // REGISTER 5-2
     // Datasheet p.18
     enum LimitHysteresis: UInt8, BitEmbeddable {
@@ -106,7 +101,8 @@ class MCP9808_ConfigRegister: SMBusWord {
     var alertMode: AlertMode = .comparatorOutput
 }
 
-class MCP9808_TemperatureLimitRegister: SMBusWord {
+
+class MCP9808_TemperatureLimitRegister: WordDescription {
     // REGISTER 5-3
     // Datasheet p.22
 
@@ -120,7 +116,8 @@ class MCP9808_TemperatureLimitRegister: SMBusWord {
     var temperatureQuarterCelsius: Int = 0
 }
 
-class MCP9808_AmbientTemperatureRegister: SMBusWord {
+
+class MCP9808_AmbientTemperatureRegister: WordDescription {
     // REGISTER 5-4
     // Datasheet p.24
 
@@ -143,14 +140,16 @@ class MCP9808_AmbientTemperatureRegister: SMBusWord {
     var temperatureSixteenthCelsius: Int = 0
 }
 
-class MCP9808_ManufacturerIDRegister: SMBusWord {
+
+class MCP9808_ManufacturerIDRegister: WordDescription {
     // REGISTER 5-5
     // Datasheet p.27
     @Position(msb: 15, lsb: 0)
     var manufacturerID: Int = 0x0054 // expected
 }
 
-class MCP9808_DeviceIDandRevisionRegister: SMBusWord {
+
+class MCP9808_DeviceIDandRevisionRegister: WordDescription {
     // REGISTER 5-6
     // Datasheet p.28
 
@@ -161,8 +160,8 @@ class MCP9808_DeviceIDandRevisionRegister: SMBusWord {
     var revision: Int = 0
 }
 
-// FIXME: 8-bit
-class MCP9808_ResolutionRegister: ByteArrayDescription {
+
+class MCP9808_ResolutionRegister: ByteDescription {
     // REGISTER 5-7
     // Datasheet p.29
 
@@ -173,13 +172,6 @@ class MCP9808_ResolutionRegister: ByteArrayDescription {
         case c0_0625 = 0b11  // +0.0625°C (power-up default, tCONV = 250 ms typical)
     }
 
-    // FIXME: the MCP9808 is word-oriented, so the significant byte (known here
-    // as "byte 1"; in the datasheet as "bits 8-15") is unused.
-    // Don't forget the minor bits are in byte 2!
-    @Position(ofByte: 1, msb: 1, lsb: 0)
+    @Position(msb: 1, lsb: 0)
     var deviceID: Resolution = .c0_0625
 }
-
-
-
-
