@@ -37,7 +37,7 @@ class MCP9808_PointerRegister: ByteArrayDescription {
         case resolution = 0b1000  // Resolution register
         // case reserved = 0b1xxx  // Reserved(1)
     }
-    @position(ofByte: 1, msb: 4, lsb: 0)
+    @Position(ofByte: 1, msb: 4, lsb: 0)
     var command: RegisterPointer = .temperature
 }
 
@@ -51,58 +51,58 @@ class MCP9808_ConfigRegister: SMBusWord {
         case C3 = 0b10
         case C6 = 0b11
     }
-    @position(msb: 10, lsb: 9)
+    @Position(msb: 10, lsb: 9)
     var tHyst: LimitHysteresis = .C0
 
     enum PowerMode: UInt8, BitEmbeddable {
         case continuousConversion = 0
         case shutdown = 1
     }
-    @position(bit: 8)
+    @Position(bit: 8)
     var shdn: PowerMode = .continuousConversion
 
-    @position(bit: 7)
+    @Position(bit: 7)
     var criticalTemperatureLock = false
 
-    @position(bit: 6)
+    @Position(bit: 6)
     var windowTemperatureLock = false
 
     enum InterruptClear: UInt8, BitEmbeddable {
         case noEffect = 0
         case clearInterruptOutput = 1
     }
-    @position(bit: 5)
+    @Position(bit: 5)
     var intClear: InterruptClear = .noEffect
 
-    @position(bit: 4)
+    @Position(bit: 4)
     var alertOutputStatus = false
 
     enum AlertControl: UInt8, BitEmbeddable {
         case disabled = 0
         case enabled = 1
     }
-    @position(bit: 3)
+    @Position(bit: 3)
     var alertControl: AlertControl = .disabled
 
     enum AlertSelect: UInt8, BitEmbeddable {
         case upperLowerCrit = 0
         case critOnly = 1
     }
-    @position(bit: 2)
+    @Position(bit: 2)
     var alertSelect: AlertSelect = .upperLowerCrit
 
     enum AlertPolarity: UInt8, BitEmbeddable {
         case activeLow = 0
         case activeHigh = 1
     }
-    @position(bit: 1)
+    @Position(bit: 1)
     var alertPolarity: AlertPolarity = .activeLow
 
     enum AlertMode: UInt8, BitEmbeddable {
         case comparatorOutput = 0
         case interruptOutput = 1
     }
-    @position(bit: 0)
+    @Position(bit: 0)
     var alertMode: AlertMode = .comparatorOutput
 }
 
@@ -110,13 +110,13 @@ class MCP9808_TemperatureLimitRegister: SMBusWord {
     // REGISTER 5-3
     // Datasheet p.22
 
-    // FIXME: this is a fixed-point fractional with two bits. @position
+    // FIXME: this is a fixed-point fractional with two bits. @Position
     // doesn't support floats/fractionals, so we read all the bits and
     // will have to divide by 4 when interpreting as Celsius.
     // Alternatively, we could have read down to lsb 4 and ignored the
     // fractional part. Splitting them into decimal and fraction fields
     // is unwise because the fractional interpretation varies by the sign.
-    @position(msb: 12, lsb: 2, .extendNegativeBit)
+    @Position(msb: 12, lsb: 2, .extendNegativeBit)
     var temperatureQuarterCelsius: Int = 0
 }
 
@@ -129,24 +129,24 @@ class MCP9808_AmbientTemperatureRegister: SMBusWord {
         case outsideLimit = 1
     }
 
-    @position(bit: 15)
+    @Position(bit: 15)
     var AmbientVsCritical: LimitFlag = .withinLimit
 
-    @position(bit: 14)
+    @Position(bit: 14)
     var AmbientVsUpper: LimitFlag = .withinLimit
 
-    @position(bit: 13)
+    @Position(bit: 13)
     var AmbientVsLower: LimitFlag = .withinLimit
 
 
-    @position(msb: 12, lsb: 0, .extendNegativeBit)
+    @Position(msb: 12, lsb: 0, .extendNegativeBit)
     var temperatureSixteenthCelsius: Int = 0
 }
 
 class MCP9808_ManufacturerIDRegister: SMBusWord {
     // REGISTER 5-5
     // Datasheet p.27
-    @position(msb: 15, lsb: 0)
+    @Position(msb: 15, lsb: 0)
     var manufacturerID: Int = 0x0054 // expected
 }
 
@@ -154,10 +154,10 @@ class MCP9808_DeviceIDandRevisionRegister: SMBusWord {
     // REGISTER 5-6
     // Datasheet p.28
 
-    @position(msb: 15, lsb: 8)
+    @Position(msb: 15, lsb: 8)
     var deviceID: Int = 0
 
-    @position(msb: 7, lsb: 0)
+    @Position(msb: 7, lsb: 0)
     var revision: Int = 0
 }
 
@@ -176,7 +176,7 @@ class MCP9808_ResolutionRegister: ByteArrayDescription {
     // FIXME: the MCP9808 is word-oriented, so the significant byte (known here
     // as "byte 1"; in the datasheet as "bits 8-15") is unused.
     // Don't forget the minor bits are in byte 2!
-    @position(ofByte: 1, msb: 1, lsb: 0)
+    @Position(ofByte: 1, msb: 1, lsb: 0)
     var deviceID: Resolution = .c0_0625
 }
 
