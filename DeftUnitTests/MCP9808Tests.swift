@@ -60,17 +60,17 @@ class MCP9808Tests: XCTestCase {
 
     func testNegativeTemperature() throws {
         let commands = MockTransport()
-        let link = try! I2CToolsLink(transport: commands, busID: 6, nodeAddress: 3)
+        let link = try! I2CToolsLink(transport: commands, busID: 6, nodeAddress: 3)  // ID and Address not for real
 
         let sensor = MCP9808_TemperatureSensor(link: link)
 
-        commands.expect(.i2ctransfer("6 w1@0x03 0x05 r2@0x03"))
-        commands.expect(.receive("0x0f 0xef"))
+        commands.expect(.i2ctransfer("6 w1@3 0x05 r2@3"))
+        commands.expect(.receive("0x1f 0xde\n"))
 
         let temp = sensor.readTemperature()
 
         commands.assertExpectedConsumed()
-        XCTAssertEqual(temp, -1.125, "expected temperature")
+        XCTAssertEqual(temp, -2.125, "expected temperature")
     }
 
 }

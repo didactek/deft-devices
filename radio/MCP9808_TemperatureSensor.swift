@@ -25,8 +25,7 @@ class MCP9808_TemperatureSensor {
         let result = MCP9808_AmbientTemperatureRegister()
 
         // FIXME: these need to be combined into a single operation
-        link.write(data: command.storage.bytes)
-        link.read(data: &result.storage.bytes)
+        link.writeAndRead(sendFrom: command.storage.bytes, receiveInto: &result.storage.bytes)
 
         return Double(result.temperatureSixteenthCelsius) / 16.0
     }

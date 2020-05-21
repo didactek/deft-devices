@@ -20,24 +20,33 @@ import Foundation
 /// All reads/writes finish by terminating the message with a STOP.
 ///
 /// `BitStorageCore`-derived objects may assist in coding and decoding.
-class DataLink {
+protocol DataLink {
     /// Send count bytes to the devlce in a single message.
-    func write(data: Data, count: Int) {
-        print(data.map { String(format: "0x%02x", $0) } )
-    }
+    func write(data: Data, count: Int)
 
+    /// Read count bytes from the device in a single message.
+    func read(data: inout Data, count: Int)
+
+
+    /// Send and receive bytes in a single I2C conversation.
+    ///
+    /// Commonly used in patterns like reading from a named register.
+    func writeAndRead(sendFrom: Data, sendCount: Int, receiveInto: inout Data, receiveCount: Int)
+}
+
+extension DataLink {
     /// Send all the bytes in data to the device.
-    final func write(data: Data) {
+    func write(data: Data) {
         write(data: data, count: data.count)
     }
 
-    /// Read count bytes from the device in a single message.
-    func read(data: inout Data, count: Int) {
-        print("not simulating data read")
-    }
-
     /// Replace the existing bytes in data with bytes read from the device.
-    final func read(data: inout Data) {
+    func read(data: inout Data) {
         read(data: &data, count: data.count)
     }
+
+    func writeAndRead(sendFrom: Data, receiveInto: inout Data) {
+          writeAndRead(sendFrom: sendFrom, sendCount: sendFrom.count, receiveInto: &receiveInto, receiveCount: receiveInto.count)
+      }
+
 }
