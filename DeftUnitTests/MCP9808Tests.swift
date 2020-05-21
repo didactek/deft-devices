@@ -12,7 +12,6 @@ import XCTest
 class MCP9808Tests: XCTestCase {
     class MockTransport: ShellTransport {
         enum Operation {
-            case send(String)
             case receive(String)
             case i2ctransfer(String)
         }
@@ -28,8 +27,6 @@ class MCP9808Tests: XCTestCase {
             let operation = expected.removeFirst()
             debugPrint(operation)
             switch operation {
-            case .send(let expectedCommand) :
-                XCTAssertEqual(command, expectedCommand)
             case .i2ctransfer(let args) :
                 let extendedExpected = "/usr/sbin/i2ctransfer -y " + args
                 XCTAssertEqual(command, extendedExpected)
