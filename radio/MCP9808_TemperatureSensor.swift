@@ -19,7 +19,16 @@ class MCP9808_TemperatureSensor {
 
     // FIXME: should I be using UnitTemperature here? I have usability problems with it, since differences are not expressed in Kelvin and thus add badly.
     func readTemperature() -> Double {
-        return 0
+        let command = MCP9808_PointerRegister()
+        command.command = .temperature
+
+        let result = MCP9808_AmbientTemperatureRegister()
+
+        // FIXME: these need to be combined into a single operation
+        link.write(data: command.storage.bytes)
+        link.read(data: &result.storage.bytes)
+
+        return Double(result.temperatureSixteenthCelsius) / 16.0
     }
 
 }

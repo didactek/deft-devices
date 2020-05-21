@@ -14,6 +14,7 @@ class MCP9808Tests: XCTestCase {
         enum Operation {
             case send(String)
             case receive(String)
+            case i2ctransfer(String)
         }
         var expected: [Operation] = []
         func assertExpectedConsumed() {
@@ -25,9 +26,13 @@ class MCP9808Tests: XCTestCase {
 
         func send(_ command: String) {
             let operation = expected.removeFirst()
+            debugPrint(operation)
             switch operation {
             case .send(let expectedCommand) :
                 XCTAssertEqual(command, expectedCommand)
+            case .i2ctransfer(let args) :
+                let extendedExpected = "/usr/sbin/i2ctransfer -y " + args
+                XCTAssertEqual(command, extendedExpected)
             default:
                 XCTFail("Unexpected operation \(command)")
             }
@@ -59,13 +64,13 @@ class MCP9808Tests: XCTestCase {
 
         let sensor = MCP9808_TemperatureSensor(link: link)
 
-        commands.expect(.send("i2ctools blah blah"))
-        commands.expect(.receive("0x42"))
+        commands.expect(.i2ctransfer("6 w1@0x03 0x05 r2@0x03"))
+        commands.expect(.receive("0x0f 0xef"))
 
         let temp = sensor.readTemperature()
 
-        XCTAssertEqual(3.9, temp, "expected temperature")
         commands.assertExpectedConsumed()
+        XCTAssertEqual(temp, -1.125, "expected temperature")
     }
 
 }
