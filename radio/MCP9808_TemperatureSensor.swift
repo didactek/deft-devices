@@ -9,8 +9,9 @@
 
 import Foundation
 
-class MCP9808_TemperatureSensor {
-    // FIXME: DataLink needs additional capabilities (write/read in a single transaction)
+class MCP9808_TemperatureSensor: I2CTraits {
+    static var defaultNodeAddress = 0x18  // base; three lower bits hardware-settable
+
     let link: DataLink
 
     init(link: DataLink) {
@@ -24,7 +25,6 @@ class MCP9808_TemperatureSensor {
 
         let result = MCP9808_AmbientTemperatureRegister()
 
-        // FIXME: these need to be combined into a single operation
         link.writeAndRead(sendFrom: command.storage.bytes, receiveInto: &result.storage.bytes)
 
         return Double(result.temperatureSixteenthCelsius) / 16.0

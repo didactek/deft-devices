@@ -32,16 +32,15 @@ import Foundation
 // read/write take place in 5-byte messages. Semantics differ depending on direction
 let pi = SSHTransport()
 
-var link = try! I2CToolsLink(transport: pi, busID: 1, nodeAddress: 0x60)
-//var link = DataLink()  // for just printing requests
-var radio = TEA5767_Radio(link: link)
+var radioLink = try! I2CToolsLink(transport: pi, busID: 1, nodeAddress: TEA5767_Radio.defaultNodeAddress)
+var radio = TEA5767_Radio(link: radioLink)
 
-//radio.updateStatus()
-//radio.tuneTo(mHz: 100.0)
-//print(radio.readBuffer.stereoTuned)
-//radio.executeRequests()
-//radio.tuneTo(mHz: 88.9)
-//radio.executeRequests()
+var tempLink = try! I2CToolsLink(transport: pi, busID: 1, nodeAddress: MCP9808_TemperatureSensor.defaultNodeAddress)
+var temp = MCP9808_TemperatureSensor(link: radioLink)
+
+var currentTemp = temp.readTemperature()
+print("Temperature is \(currentTemp) C")
+
 radio.tuneTo(mHz: 94.9)
 //radio.tuneTo(mHz: 90.3)
 radio.executeRequests()
@@ -54,6 +53,10 @@ while !radio.readBuffer.readyFlag {
 sleep(1)
 radio.updateStatus()
 print(radio.readBuffer.stereoTuned)
-print(radio.tuning())
+print("Radio tuned to \(radio.tuning()) MHz")
+
+currentTemp = temp.readTemperature()
+print("Temperature is \(currentTemp) C")
+
 
 pi.stop()

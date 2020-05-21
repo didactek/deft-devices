@@ -9,7 +9,9 @@
 
 import Foundation
 
-class TEA5767_Radio {
+class TEA5767_Radio: I2CTraits {
+    static var defaultNodeAddress = 0x60
+
     static let intermediateFrequency: Double = 225_000
     static let referenceFrequency: Double = 32_768
 
