@@ -16,7 +16,7 @@ var radioLink = try! I2CToolsLink(transport: pi, busID: 1, nodeAddress: TEA5767_
 var radio = TEA5767_Radio(link: radioLink)
 
 var tempLink = try! I2CToolsLink(transport: pi, busID: 1, nodeAddress: MCP9808_TemperatureSensor.defaultNodeAddress)
-var temp = MCP9808_TemperatureSensor(link: radioLink)
+var temp = MCP9808_TemperatureSensor(link: tempLink)
 
 var currentTemp = temp.readTemperature()
 print("Temperature is \(currentTemp) C")
