@@ -12,8 +12,9 @@ import Foundation
 /// Executes commands over an ssh session.
 class SSHTransport: ShellTransport {
     let executable = URL(fileURLWithPath: "/usr/bin/ssh")
-    let host = "raspberrypi.local"
-    let user = "pi"
+    let host: String
+    let user: String
+
     // FIXME: should have timeouts on read and close...
 
     var commandPipe: FileHandle
@@ -21,7 +22,10 @@ class SSHTransport: ShellTransport {
 
     var process: Process
 
-    init() {
+    init(hostname: String, username: String) {
+        host = hostname
+        user = username
+
         process = Process()
         process.executableURL = executable
         process.arguments = [ "\(user)@\(host)" ]
