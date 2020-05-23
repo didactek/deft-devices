@@ -19,6 +19,9 @@ let package = Package(
         .library(
             name: "TEA5767",
             targets: ["TEA5767"]),
+        .executable(
+            name: "DeftExample",
+            targets: ["DeftExample"]),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -32,7 +35,7 @@ let package = Package(
             dependencies: []),
         .testTarget(
             name: "DeftBusTests",
-            dependencies: ["DeftLayout", "DeftBus"]),
+            dependencies: ["DeftBus", "DeftLayout"]),
         .target(
             name: "DeftLayout",
             dependencies: []),
@@ -41,12 +44,18 @@ let package = Package(
             dependencies: ["DeftLayout"]),
         .target(
             name: "MCP9808",
-            dependencies: ["DeftLayout", "DeftBus"]),
+            dependencies: ["DeftBus", "DeftLayout"]),
         .testTarget(
             name: "MCP9808Tests",
-            dependencies: ["DeftLayout", "DeftBus", "MCP9808"]),
+            dependencies: ["DeftBus", "DeftLayout", "MCP9808"]),
         .target(
             name: "TEA5767",
-            dependencies: ["DeftLayout", "DeftBus"]),
+            dependencies: ["DeftBus", "DeftLayout"]),
+//        .testTarget(
+//            name: "TEA5767Tests",
+//            dependencies: ["DeftLayout", "DeftBus", "TEA5767"]),
+        .target(
+            name: "DeftExample",
+            dependencies: ["DeftBus", "DeftLayout", "MCP9808", "TEA5767"]),
     ]
 )
