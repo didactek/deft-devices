@@ -25,7 +25,6 @@ class MCP9808Tests: XCTestCase {
 
         func send(_ command: String) {
             let operation = expected.removeFirst()
-            debugPrint(operation)
             switch operation {
             case .i2ctransfer(let args) :
                 let extendedExpected = "/usr/sbin/i2ctransfer -y " + args
