@@ -1,7 +1,7 @@
 import XCTest
 
-import DeftTests
+import DeftLayoutTests
 
 var tests = [XCTestCaseEntry]()
-tests += DeftTests.allTests()
+tests += DeftLayoutTests.allTests()
 XCTMain(tests)
