@@ -8,6 +8,7 @@
 //
 
 import Foundation
+import DeftLayout
 
 // MCP9808 I2C temperature sensor
 // datasheet at https://ww1.microchip.com/downloads/en/DeviceDoc/25095A.pdf
