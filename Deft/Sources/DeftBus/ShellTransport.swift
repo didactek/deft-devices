@@ -9,7 +9,7 @@
 
 import Foundation
 
-protocol ShellTransport {
+public protocol ShellTransport {
     func send(_ command: String)
     func receive() -> String
 }

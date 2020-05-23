@@ -20,7 +20,7 @@ import Foundation
 /// All reads/writes finish by terminating the message with a STOP.
 ///
 /// `BitStorageCore`-derived objects may assist in coding and decoding.
-protocol DataLink {
+public protocol DataLink {
     /// Send count bytes to the devlce in a single message.
     func write(data: Data, count: Int)
 
@@ -34,7 +34,7 @@ protocol DataLink {
     func writeAndRead(sendFrom: Data, sendCount: Int, receiveInto: inout Data, receiveCount: Int)
 }
 
-extension DataLink {
+public extension DataLink {
     /// Send all the bytes in data to the device.
     func write(data: Data) {
         write(data: data, count: data.count)

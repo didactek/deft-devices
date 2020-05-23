@@ -10,7 +10,8 @@
 import Foundation
 
 /// Executes commands over an ssh session.
-class SSHTransport: ShellTransport {
+@available(OSX 10.15, *)
+public class SSHTransport: ShellTransport {
     let executable = URL(fileURLWithPath: "/usr/bin/ssh")
     let host: String
     let user: String
@@ -22,7 +23,7 @@ class SSHTransport: ShellTransport {
 
     var process: Process
 
-    init(hostname: String, username: String) {
+    public init(hostname: String, username: String) {
         host = hostname
         user = username
 
@@ -44,17 +45,17 @@ class SSHTransport: ShellTransport {
         let _ = receivePipe.availableData
     }
 
-    func send(_ command: String) {
+    public func send(_ command: String) {
         let terminatedCommand = command.appending("\n")
         commandPipe.write(terminatedCommand.data(using: .ascii)!)
     }
 
     /// Read whatever is available from the pipe. Will wait until sender has flushed *some* data.
-    func receive() -> String {
+    public func receive() -> String {
         return String(data: receivePipe.availableData, encoding: .ascii)!
     }
 
-    func stop() {
+    public func stop() {
         try? commandPipe.close()
 //        process.terminate() // should probably give a timeout for waitUntilExit and then call this
         process.waitUntilExit()

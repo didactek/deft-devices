@@ -9,6 +9,9 @@
 
 import Foundation
 
+import DeftBus
+import TEA5767
+
 
 let pi = SSHTransport(hostname: "raspberrypi.local", username: "pi")
 
@@ -25,13 +28,13 @@ radio.tuneTo(mHz: 94.9)
 radio.executeRequests()
 
 radio.updateStatus()
-while !radio.readBuffer.readyFlag {
+while !radio.ready {
     radio.updateStatus()
 }
 // I get nothing for stereoTuned or chipIdentification; I wonder if I have a counterfeit chip.
 sleep(1)
 radio.updateStatus()
-print(radio.readBuffer.stereoTuned)
+print(radio.stereoTuned)
 print("Radio tuned to \(radio.tuning()) MHz")
 
 currentTemp = temp.readTemperature()

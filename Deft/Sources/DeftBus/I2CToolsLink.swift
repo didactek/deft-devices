@@ -9,7 +9,7 @@
 
 import Foundation
 
-class I2CToolsLink: DataLink {
+public class I2CToolsLink: DataLink {
 
     let busID: Int
     let nodeAddress: Int
@@ -18,7 +18,8 @@ class I2CToolsLink: DataLink {
     enum RangeError: Error {
         case unsafeDeviceAddress  // potential system devices: RAM controllers and the like
     }
-    init(transport: ShellTransport, busID: Int, nodeAddress: Int) throws {
+
+    public init(transport: ShellTransport, busID: Int, nodeAddress: Int) throws {
         guard nodeAddress > 0x02 && nodeAddress < 0x78 else {
             throw RangeError.unsafeDeviceAddress
         }
@@ -62,18 +63,18 @@ class I2CToolsLink: DataLink {
         }
     }
 
-    func write(data: Data, count: Int) {
+    public func write(data: Data, count: Int) {
         let command = transferPrologue() + " " + transferWriteFragment(data: data, count: count)
         transport.send(command)
     }
 
-    func read(data: inout Data, count: Int) {
+    public func read(data: inout Data, count: Int) {
         let command = transferPrologue() + " " + prepareReadFragment(data: &data, count: count)
         transport.send(command)
         readResults(data: &data, count: count)
     }
 
-    func writeAndRead(sendFrom: Data, sendCount: Int, receiveInto: inout Data, receiveCount: Int) {
+    public func writeAndRead(sendFrom: Data, sendCount: Int, receiveInto: inout Data, receiveCount: Int) {
         let command = transferPrologue() + " " +
             transferWriteFragment(data: sendFrom, count: sendCount) + " " +
             prepareReadFragment(data: &receiveInto, count: receiveCount)

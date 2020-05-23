@@ -8,6 +8,7 @@
 //
 
 import XCTest
+@testable import DeftBus
 
 class DummyTransport: ShellTransport {
     func send(_ command: String) {

@@ -10,6 +10,12 @@ let package = Package(
         .library(
             name: "DeftLayout",
             targets: ["DeftLayout"]),
+        .library(
+            name: "DeftBus",
+            targets: ["DeftBus"]),
+        .library(
+            name: "TEA5767",
+            targets: ["TEA5767"]),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -24,5 +30,14 @@ let package = Package(
         .testTarget(
             name: "DeftLayoutTests",
             dependencies: ["DeftLayout"]),
+        .target(
+            name: "DeftBus",
+            dependencies: []),
+        .testTarget(
+            name: "DeftBusTests",
+            dependencies: ["DeftLayout", "DeftBus"]),
+        .target(
+            name: "TEA5767",
+            dependencies: ["DeftLayout", "DeftBus"]),
     ]
 )

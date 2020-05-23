@@ -8,6 +8,7 @@
 //
 
 import Foundation
+import DeftBus
 
 class MCP9808_TemperatureSensor: I2CTraits {
     static var defaultNodeAddress = 0x18  // base; three lower bits hardware-settable

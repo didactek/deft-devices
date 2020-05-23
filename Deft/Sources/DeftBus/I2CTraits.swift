@@ -9,7 +9,7 @@
 
 import Foundation
 
-protocol I2CTraits {
+public protocol I2CTraits {
     static var defaultNodeAddress: Int { get }
     // maximum clock speed....
 }

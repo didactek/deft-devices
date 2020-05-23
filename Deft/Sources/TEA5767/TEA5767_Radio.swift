@@ -9,9 +9,10 @@
 
 import Foundation
 import DeftLayout
+import DeftBus
 
-class TEA5767_Radio: I2CTraits {
-    static var defaultNodeAddress = 0x60
+public class TEA5767_Radio: I2CTraits {
+    public static var defaultNodeAddress = 0x60
 
     static let intermediateFrequency: Double = 225_000
     static let referenceFrequency: Double = 32_768
@@ -20,23 +21,26 @@ class TEA5767_Radio: I2CTraits {
     var readBuffer = TEA5767_ReadLayout()
     let link: DataLink
 
-    init(link: DataLink) {
+    public var ready: Bool { get { readBuffer.readyFlag } }
+    public var stereoTuned: Bool { get { readBuffer.stereoTuned } }
+
+    public init(link: DataLink) {
         self.link = link
     }
 
-    func executeRequests() {
+    public func executeRequests() {
         link.write(data: writeBuffer.storage.bytes)
     }
 
-    func updateStatus() {
+    public func updateStatus() {
         link.read(data: &readBuffer.storage.bytes)
     }
 
-    func tuneTo(mHz: Double) {
+    public func tuneTo(mHz: Double) {
         writeBuffer.pll = Self.pll(mHz: mHz)
     }
 
-    func tuning() -> Double {
+    public func tuning() -> Double {
         return Self.carrierMHz(highSideInjection: readBuffer.pll)
     }
 
