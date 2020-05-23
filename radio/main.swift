@@ -11,6 +11,7 @@ import Foundation
 
 import DeftBus
 import TEA5767
+import MCP9808
 
 
 let pi = SSHTransport(hostname: "raspberrypi.local", username: "pi")

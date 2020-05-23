@@ -8,11 +8,14 @@ let package = Package(
     products: [
         // Products define the executables and libraries produced by a package, and make them visible to other packages.
         .library(
+            name: "DeftBus",
+            targets: ["DeftBus"]),
+        .library(
             name: "DeftLayout",
             targets: ["DeftLayout"]),
         .library(
-            name: "DeftBus",
-            targets: ["DeftBus"]),
+            name: "MCP9808",
+            targets: ["MCP9808"]),
         .library(
             name: "TEA5767",
             targets: ["TEA5767"]),
@@ -25,17 +28,23 @@ let package = Package(
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
+            name: "DeftBus",
+            dependencies: []),
+        .testTarget(
+            name: "DeftBusTests",
+            dependencies: ["DeftLayout", "DeftBus"]),
+        .target(
             name: "DeftLayout",
             dependencies: []),
         .testTarget(
             name: "DeftLayoutTests",
             dependencies: ["DeftLayout"]),
         .target(
-            name: "DeftBus",
-            dependencies: []),
-        .testTarget(
-            name: "DeftBusTests",
+            name: "MCP9808",
             dependencies: ["DeftLayout", "DeftBus"]),
+        .testTarget(
+            name: "MCP9808Tests",
+            dependencies: ["DeftLayout", "DeftBus", "MCP9808"]),
         .target(
             name: "TEA5767",
             dependencies: ["DeftLayout", "DeftBus"]),

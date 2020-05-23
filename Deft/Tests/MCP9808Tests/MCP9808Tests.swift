@@ -9,6 +9,7 @@
 
 import XCTest
 import DeftBus
+@testable import MCP9808
 
 class MCP9808Tests: XCTestCase {
     class MockTransport: ShellTransport {

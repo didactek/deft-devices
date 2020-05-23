@@ -10,17 +10,17 @@
 import Foundation
 import DeftBus
 
-class MCP9808_TemperatureSensor: I2CTraits {
-    static var defaultNodeAddress = 0x18  // base; three lower bits hardware-settable
+public class MCP9808_TemperatureSensor: I2CTraits {
+    public static var defaultNodeAddress = 0x18  // base; three lower bits hardware-settable
 
     let link: DataLink
 
-    init(link: DataLink) {
+    public init(link: DataLink) {
         self.link = link
     }
 
     // FIXME: should I be using UnitTemperature here? I have usability problems with it, since differences are not expressed in Kelvin and thus add badly.
-    func readTemperature() -> Double {
+    public func readTemperature() -> Double {
         let command = MCP9808_PointerRegister()
         command.command = .temperature
 
