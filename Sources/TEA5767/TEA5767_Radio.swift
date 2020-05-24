@@ -1,6 +1,6 @@
 //
-//  TEA5767_radio.swift
-//  radio
+//  TEA5767_Radio.swift
+//  Deft -- DEvices from swiFT
 //
 //  Created by Kit Transue on 2020-05-04.
 //  Copyright © 2020 Kit Transue.

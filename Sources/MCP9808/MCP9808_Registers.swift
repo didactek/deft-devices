@@ -1,6 +1,6 @@
 //
 //  MCP9808_Registers.swift
-//  radio
+//  Deft -- DEvices from swiFT
 //
 //  Created by Kit Transue on 2020-05-08.
 //  Copyright © 2020 Kit Transue.

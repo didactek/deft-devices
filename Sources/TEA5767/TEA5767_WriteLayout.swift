@@ -1,6 +1,6 @@
 //
 //  TEA5767_WriteLayout.swift
-//  radio
+//  Deft -- DEvices from swiFT
 //
 //  Created by Kit Transue on 2020-05-04.
 //  Copyright © 2020 Kit Transue.
