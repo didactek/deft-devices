@@ -1,0 +1,5 @@
+module LinuxI2CDev [system] {
+  header "/usr/include/linux/i2c-dev.h"
+  export I2C_SLAVE
+  export I2C_RDWR
+}

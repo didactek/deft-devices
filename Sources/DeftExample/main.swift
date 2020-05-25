@@ -12,6 +12,10 @@ import Foundation
 import DeftBus
 import MCP9808
 import TEA5767
+#if os(macOS)
+#else
+import LinuxI2C
+#endif
 
 #if os(macOS)
 if #available(OSX 10.15, *) {
@@ -24,9 +28,8 @@ if #available(OSX 10.15, *) {
 
     let tempLink = try! I2CToolsLink(transport: pi, busID: 1, nodeAddress: MCP9808_TemperatureSensor.defaultNodeAddress)
     #else
-    let radioLink = FixmeI2C(busID: 1, nodeAddress: TEA5767_Radio.defaultNodeAddress)
-
-    let tempLink = FixmeI2C(busID: 1, nodeAddress: MCP9808_TemperatureSensor.defaultNodeAddress)
+    let radioLink = try! LinuxI2C(busID: 1, nodeAddress: TEA5767_Radio.defaultNodeAddress)
+    let tempLink = try! LinuxI2C(busID: 1, nodeAddress: MCP9808_TemperatureSensor.defaultNodeAddress)
     #endif
 
 
