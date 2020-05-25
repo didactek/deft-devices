@@ -16,12 +16,21 @@ import TEA5767
 #if os(macOS)
 if #available(OSX 10.15, *) {
 
+    #if os(macOS)
     let pi = SSHTransport(hostname: "raspberrypi.local", username: "pi")
+    defer { pi.stop() }
 
     let radioLink = try! I2CToolsLink(transport: pi, busID: 1, nodeAddress: TEA5767_Radio.defaultNodeAddress)
-    let radio = TEA5767_Radio(link: radioLink)
 
     let tempLink = try! I2CToolsLink(transport: pi, busID: 1, nodeAddress: MCP9808_TemperatureSensor.defaultNodeAddress)
+    #else
+    let radioLink = FixmeI2C(busID: 1, nodeAddress: TEA5767_Radio.defaultNodeAddress)
+
+    let tempLink = FixmeI2C(busID: 1, nodeAddress: MCP9808_TemperatureSensor.defaultNodeAddress)
+    #endif
+
+
+    let radio = TEA5767_Radio(link: radioLink)
     let temp = MCP9808_TemperatureSensor(link: tempLink)
 
     var currentTemp = temp.readTemperature()
@@ -42,8 +51,5 @@ if #available(OSX 10.15, *) {
 
     currentTemp = temp.readTemperature()
     print("Temperature is \(currentTemp) C")
-
-
-    pi.stop()
 }
 #endif
