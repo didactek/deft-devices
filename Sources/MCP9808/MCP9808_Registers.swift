@@ -16,7 +16,7 @@ import DeftLayout
 // (The datasheet text and diagrams do not always agree about bit widths and
 // other minor details. Diagrams are preferred in these conflicts.)
 
-
+#if false
 class MCP9808_PointerRegister: ByteDescription {
     // REGISTER 5-1
 
@@ -116,7 +116,7 @@ class MCP9808_TemperatureLimitRegister: WordDescription {
     @Position(msb: 12, lsb: 2, .extendNegativeBit)
     var temperatureQuarterCelsius: Int = 0
 }
-
+#endif
 
 class MCP9808_AmbientTemperatureRegister: WordDescription {
     // REGISTER 5-4
@@ -141,7 +141,7 @@ class MCP9808_AmbientTemperatureRegister: WordDescription {
     var temperatureSixteenthCelsius: Int = 0
 }
 
-
+#if false
 class MCP9808_ManufacturerIDRegister: WordDescription {
     // REGISTER 5-5
     // Datasheet p.27
@@ -176,3 +176,4 @@ class MCP9808_ResolutionRegister: ByteDescription {
     @Position(msb: 1, lsb: 0)
     var deviceID: Resolution = .c0_0625
 }
+#endif

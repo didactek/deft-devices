@@ -21,12 +21,11 @@ public class MCP9808_TemperatureSensor: I2CTraits {
 
     // FIXME: should I be using UnitTemperature here? I have usability problems with it, since differences are not expressed in Kelvin and thus add badly.
     public func readTemperature() -> Double {
-        let command = MCP9808_PointerRegister()
-        command.command = .temperature
+        let command = Data(repeating: 5, count: 1)
 
         let result = MCP9808_AmbientTemperatureRegister()
 
-        link.writeAndRead(sendFrom: command.storage.bytes, receiveInto: &result.storage.bytes)
+        link.writeAndRead(sendFrom: command, receiveInto: &result.storage.bytes)
 
         return Double(result.temperatureSixteenthCelsius) / 16.0
     }
