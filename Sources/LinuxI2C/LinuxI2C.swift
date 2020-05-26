@@ -1,3 +1,4 @@
+#if !os(macOS)
 import Foundation
 import Glibc
 
@@ -38,4 +39,4 @@ public class LinuxI2C: DataLink {
     //ioctl(file, I2C_RDWR, struct i2c_rdwr_ioctl_data *msgset)...
     }
 }
-
+#endif
