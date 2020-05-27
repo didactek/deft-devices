@@ -1,5 +1,5 @@
 module LinuxI2CDev [system] {
-  header "/usr/include/linux/i2c-dev.h"
+  header "I2CUmbrella.h"
   export I2C_SLAVE
   export I2C_RDWR
 }
