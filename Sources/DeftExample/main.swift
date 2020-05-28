@@ -21,8 +21,7 @@ import LinuxI2C
 if #available(OSX 10.15, *) {
 
     #if os(macOS)
-    let pi = SSHTransport(hostname: "raspberrypi.local", username: "pi")
-    defer { pi.stop() }
+    let pi = SSHTransport(destination: "pi@raspberrypi.local")
 
     let radioLink = try! I2CToolsLink(transport: pi, busID: 1, nodeAddress: TEA5767_Radio.defaultNodeAddress)
 
