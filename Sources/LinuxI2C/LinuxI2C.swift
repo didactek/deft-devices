@@ -26,9 +26,11 @@ public class LinuxI2C: DataLink {
             throw RangeError.unsafeDeviceAddress
         }
         file = open("/dev/i2c-\(busID)", O_RDWR)
-        ioctl(file, UInt(I2C_SLAVE), CInt(nodeAddress))
+        let resultCode = ioctl(file, UInt(I2C_SLAVE), CInt(nodeAddress))
+        assert(resultCode == 0)
 
         self.nodeAddress = nodeAddress
+        assert(file >= 0)
     }
 
     deinit {
@@ -50,8 +52,10 @@ public class LinuxI2C: DataLink {
 
     public func writeAndRead(sendFrom: Data, sendCount: Int, receiveInto: inout Data, receiveCount: Int) {
         var sendCopy = sendFrom  // won't be written, but ioctl flags make this hard to prove. Use a copy.
-        sendCopy.withContiguousMutableStorageIfAvailable { sendBuffer in
-            receiveInto.withContiguousMutableStorageIfAvailable { recvBuffer in
+        sendCopy.withUnsafeMutableBytes { sendRaw in
+            let sendBuffer = sendRaw.bindMemory(to: __u8.self)
+            receiveInto.withUnsafeMutableBytes { recvRaw in
+                let recvBuffer = recvRaw.bindMemory(to: __u8.self)
                 var sendMsg = i2c_msg()
                 sendMsg.addr = __u16(nodeAddress)
                 sendMsg.buf = sendBuffer.baseAddress
@@ -65,9 +69,10 @@ public class LinuxI2C: DataLink {
                 recvMsg.len = __u16(receiveCount)
 
                 var conversation = [sendMsg, recvMsg]
-                conversation.withContiguousMutableStorageIfAvailable { messages in
+                conversation.withUnsafeMutableBufferPointer { messages in
                     var callInfo = i2c_rdwr_ioctl_data(msgs: messages.baseAddress, nmsgs: __u32(messages.count))
-                    ioctl(file, UInt(I2C_RDWR), &callInfo)
+                    let resultCode = ioctl(file, UInt(I2C_RDWR), &callInfo)
+                    assert(resultCode == receiveCount)  // FIXME: I think; undocumented?
                 }
 
             }
