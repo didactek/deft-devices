@@ -14,7 +14,11 @@ let systemRead = Darwin.read
 import DeftBus
 import LinuxI2CDev
 
-/// See: https://www.kernel.org/doc/Documentation/i2c/dev-interface
+/// An implementation of `DataLink` (I2C) using Linux's userland /dev/i2c-* interface.
+///
+/// This userland interface does not require any root/sudo permissions to use.
+///
+/// Most of the interface is documented in the header files included from LinuxI2CDev/I2CUmbrella.h. For additional discussion, see https://www.kernel.org/doc/Documentation/i2c/dev-interface
 public class LinuxI2C: DataLink {
     let fileDescriptor: Int32
     let nodeAddress: Int

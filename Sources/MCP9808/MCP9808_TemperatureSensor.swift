@@ -10,6 +10,7 @@
 import Foundation
 import DeftBus
 
+/// Class for communicating with a Microchip MCP 9808 temperature sensor.
 public class MCP9808_TemperatureSensor: I2CTraits {
     public static var defaultNodeAddress = 0x18  // base; three lower bits hardware-settable
 
