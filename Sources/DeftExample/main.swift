@@ -35,7 +35,7 @@ if #available(OSX 10.15, *) {
     let radio = TEA5767_Radio(link: radioLink)
     let temp = MCP9808_TemperatureSensor(link: tempLink)
 
-    var currentTemp = temp.readTemperature()
+    var currentTemp = temp.temperature
     print("Temperature is \(currentTemp) C")
 
     radio.tuneTo(mHz: 94.9)
@@ -51,7 +51,7 @@ if #available(OSX 10.15, *) {
     print(radio.stereoTuned)
     print("Radio tuned to \(radio.tuning()) MHz")
 
-    currentTemp = temp.readTemperature()
+    currentTemp = temp.temperature
     print("Temperature is \(currentTemp) C")
 }
 #endif

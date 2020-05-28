@@ -19,8 +19,10 @@ public class MCP9808_TemperatureSensor: I2CTraits {
         self.link = link
     }
 
-    // FIXME: should I be using UnitTemperature here? I have usability problems with it, since differences are not expressed in Kelvin and thus add badly.
-    public func readTemperature() -> Double {
+    /// Read the current temperature in degrees Celsius.
+    ///
+    /// Foundation provides a UnitTemperature that could have been returned instead. It has the great advantage that it values include their units, which would be more self-documenting. But for units that don't start at zero (Celsius and Farenheit, unlike Kelvin), differences are encoded from nominally zero which makes for lots of bugs. Surprisingly, a unit-less Double seems safer.
+    public var temperature: Double { get {
         let command = MCP9808_PointerRegister()
         command.command = .temperature
 
@@ -29,6 +31,7 @@ public class MCP9808_TemperatureSensor: I2CTraits {
         link.writeAndRead(sendFrom: command.storage.bytes, receiveInto: &result.storage.bytes)
 
         return Double(result.temperatureSixteenthCelsius) / 16.0
+        }
     }
 
 }

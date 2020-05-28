@@ -65,7 +65,7 @@ class MCP9808Tests: XCTestCase {
         commands.expect(.i2ctransfer("6 w1@3 0x05 r2@3"))
         commands.expect(.receive("0x1f 0xde\n"))
 
-        let temp = sensor.readTemperature()
+        let temp = sensor.temperature
 
         commands.assertExpectedConsumed()
         XCTAssertEqual(temp, -2.125, "expected temperature")
