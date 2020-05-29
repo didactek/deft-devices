@@ -21,9 +21,6 @@ public class TEA5767_Radio: I2CTraits {
     var readBuffer = TEA5767_ReadLayout()
     let link: DataLink
 
-    public var ready: Bool { get { readBuffer.readyFlag } }
-    public var stereoTuned: Bool { get { readBuffer.stereoTuned } }
-
     public init(link: DataLink) {
         self.link = link
     }
@@ -33,10 +30,6 @@ public class TEA5767_Radio: I2CTraits {
         link.write(data: writeBuffer.storage.bytes)
     }
 
-    public func updateStatus() {
-        link.read(data: &readBuffer.storage.bytes)
-    }
-
     /// Include the specified tuning in the pending request.
     ///
     /// Requests are combined into a single write, which is not sent until `executeRequests` is called.
@@ -44,9 +37,30 @@ public class TEA5767_Radio: I2CTraits {
         writeBuffer.pll = Self.pll(mHz: mHz)
     }
 
-    public func tuning() -> Double {
-        return Self.carrierMHz(highSideInjection: readBuffer.pll)
+    /// # Reading Status
+
+    /// Get the current status of the radio
+    ///
+    /// Status can then be read using the specific status getters (ready, stereoTuned, etc.)
+    public func updateStatus() {
+        link.read(data: &readBuffer.storage.bytes)
     }
+
+    /// The frequency (in MHz) reported in the last updateStatus
+    public var tuning: Double { get {
+        Self.carrierMHz(highSideInjection: readBuffer.pll)
+        }
+    }
+
+    /// Has the tuner settled on a requested frequency, found a station during scan, or reached the end of the band during a scan as of the last updateStatus?
+    public var ready: Bool { get {
+        readBuffer.readyFlag
+        }
+    }
+
+    /// Is the station tuned in stereo as of the last updateStatus?
+    public var stereoTuned: Bool { get { readBuffer.stereoTuned } }
+
 
     static func pll(mHz frequency: Double) -> Int {
         let highSideInjection = 4 * (frequency * 1e6 + intermediateFrequency) / referenceFrequency
