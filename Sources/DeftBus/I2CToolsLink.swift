@@ -9,6 +9,7 @@
 
 import Foundation
 
+/// A class that executes I2C operations using Linux i2c-tools package commands from a shell.
 public class I2CToolsLink: DataLink {
 
     let busID: Int
@@ -19,6 +20,9 @@ public class I2CToolsLink: DataLink {
         case unsafeDeviceAddress  // potential system devices: RAM controllers and the like
     }
 
+    /// Parameter transport: Connection to shell to use to issue commands and read their output.
+    /// Parameter busID: the I2C bus to which the device is attached.
+    /// Parameter nodeAddress: the device address of the node. Only 7-bit addresses are supported.
     public init(transport: ShellTransport, busID: Int, nodeAddress: Int) throws {
         guard nodeAddress > 0x02 && nodeAddress < 0x78 else {
             throw RangeError.unsafeDeviceAddress

@@ -28,6 +28,7 @@ public class TEA5767_Radio: I2CTraits {
         self.link = link
     }
 
+    /// Flush the settings pending in the writeBuffer to the device.
     public func executeRequests() {
         link.write(data: writeBuffer.storage.bytes)
     }
@@ -36,6 +37,9 @@ public class TEA5767_Radio: I2CTraits {
         link.read(data: &readBuffer.storage.bytes)
     }
 
+    /// Include the specified tuning in the pending request.
+    ///
+    /// Requests are combined into a single write, which is not sent until `executeRequests` is called.
     public func tuneTo(mHz: Double) {
         writeBuffer.pll = Self.pll(mHz: mHz)
     }

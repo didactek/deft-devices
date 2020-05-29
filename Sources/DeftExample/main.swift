@@ -19,8 +19,7 @@ import LinuxI2C
 
 if true {
     #if os(macOS)
-    let pi = SSHTransport(hostname: "raspberrypi.local", username: "pi")
-    defer { pi.stop() }
+    let pi = SSHTransport(destination: "pi@raspberrypi.local")
 
     //let radioLink = try! I2CToolsLink(transport: pi, busID: 1, nodeAddress: TEA5767_Radio.defaultNodeAddress)
 
@@ -34,7 +33,7 @@ if true {
     //let radio = TEA5767_Radio(link: radioLink)
     let temp = MCP9808_TemperatureSensor(link: tempLink)
 
-    var currentTemp = temp.readTemperature()
+    var currentTemp = temp.temperature
     print("Temperature is \(currentTemp) C")
 
 #if false
@@ -51,7 +50,7 @@ if true {
     print(radio.stereoTuned)
     print("Radio tuned to \(radio.tuning()) MHz")
 
-    currentTemp = temp.readTemperature()
+    currentTemp = temp.temperature
     print("Temperature is \(currentTemp) C")
 #endif
 }
