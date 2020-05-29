@@ -50,7 +50,7 @@ do {  // provide a scope for the ssh-availability guard
     sleep(1)
     radio.updateStatus()
     print(radio.stereoTuned ? "in stereo" : "mono")
-    print("Radio tuned to \(radio.tuning()) MHz")
+    print("Radio tuned to \(radio.tuning) MHz")
 
     currentTemp = temp.temperature
     print("Temperature is \(currentTemp) C")
