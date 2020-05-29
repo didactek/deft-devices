@@ -33,6 +33,9 @@ public class TEA5767_Radio: I2CTraits {
         link.write(data: writeBuffer.storage.bytes)
     }
 
+    /// Get the current status of the radio
+    ///
+    /// Status can then be read using the specific status getters (ready, stereoTuned, etc.)
     public func updateStatus() {
         link.read(data: &readBuffer.storage.bytes)
     }
@@ -44,6 +47,7 @@ public class TEA5767_Radio: I2CTraits {
         writeBuffer.pll = Self.pll(mHz: mHz)
     }
 
+    /// Return the frequency (in MHz) reported in the last updateStatus
     public func tuning() -> Double {
         return Self.carrierMHz(highSideInjection: readBuffer.pll)
     }
