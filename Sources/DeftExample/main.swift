@@ -17,8 +17,11 @@ import MCP9808
 import LinuxI2C
 #endif
 
-if true {
+do {  // provide a scope for the ssh-availability guard
     #if os(macOS)
+    guard #available(OSX 10.15, *) else {
+        fatalError("Need a transport to connect to I2C, and ssh not available on this version of macOS")
+    }
     let pi = SSHTransport(destination: "pi@raspberrypi.local")
 
     //let radioLink = try! I2CToolsLink(transport: pi, busID: 1, nodeAddress: TEA5767_Radio.defaultNodeAddress)
@@ -44,10 +47,10 @@ if true {
     while !radio.ready {
         radio.updateStatus()
     }
-    // I get nothing for stereoTuned or chipIdentification; I wonder if I have a counterfeit chip.
+
     sleep(1)
     radio.updateStatus()
-    print(radio.stereoTuned)
+    print(radio.stereoTuned ? "in stereo" : "mono")
     print("Radio tuned to \(radio.tuning()) MHz")
 
     currentTemp = temp.temperature
