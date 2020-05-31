@@ -1,3 +1,12 @@
+//
+//  LinuxI2C.swift
+//  Deft -- DEvices from swiFT
+//
+//  Created by Kit Transue on 2020-05-26.
+//  Copyright © 2020 Kit Transue.
+//  SPDX-License-Identifier: Apache-2.0
+//
+
 #if true
 import Foundation
 #if !os(macOS)
