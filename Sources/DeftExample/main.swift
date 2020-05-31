@@ -12,6 +12,8 @@ import Foundation
 import DeftBus
 import MCP9808
 import TEA5767
+import LinuxSPI
+
 #if os(macOS)
 #else
 import LinuxI2C
