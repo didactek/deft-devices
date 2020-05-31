@@ -1,0 +1,7 @@
+module LinuxSPIDev [system] {
+  header "SPIUmbrella.h"
+
+  export SPI_IOC_WR_MODE
+  export SPI_IOC_WR_MAX_SPEED_HZ
+  export SPI_IOC_MESSAGE
+}
