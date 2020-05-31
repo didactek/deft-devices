@@ -28,7 +28,8 @@ public class LinuxSPI {
     }
 
     public init(busID: Int, speedHz: Int) throws {
-        fileDescriptor = open("/dev/spidev\(busID).0", O_RDWR)
+        let specialName = "/dev/spidev\(busID).1"
+        fileDescriptor = open(specialName, O_RDWR)
         guard fileDescriptor >= 0 else {
             throw SPIError.descriptorNotFound
         }
@@ -53,10 +54,11 @@ public class LinuxSPI {
     public func write(data: Data, count: Int) {
         var dataCopy = data
         dataCopy.withUnsafeMutableBytes { dataRaw in
-            var message = spi_ioc_transfer(tx_buf: UInt(bitPattern: dataRaw.baseAddress), rx_buf: 0, len: __u32(dataRaw.count), speed_hz: 0, delay_usecs: 0, bits_per_word: 0, cs_change: 0, tx_nbits: 0, rx_nbits: 0, pad: 0)
-            let sendResult = ioctl(fileDescriptor, UInt(1075866368)
+            let addressAsInt = UInt(bitPattern: dataRaw.baseAddress)
+            var message = spi_ioc_transfer(tx_buf: UInt64(addressAsInt), rx_buf: 0, len: __u32(dataRaw.count), speed_hz: 0, delay_usecs: 0, bits_per_word: 0, cs_change: 0, tx_nbits: 0, rx_nbits: 0, pad: 0)
+            let sendResult = ioctl(fileDescriptor, UInt( 1075866368 )
 /*SPI_IOC_MESSAGE(1)*/, &message)
-            assert(sendResult == 0)  // never a confirmation on send.
+            //assert(sendResult == 0)  // never a confirmation on send.
         }
     }
 
