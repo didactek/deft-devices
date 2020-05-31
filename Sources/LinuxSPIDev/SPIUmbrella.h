@@ -5,4 +5,6 @@
 #include "linux-headers/linux/spi/spidev.h"
 #else
 #include <linux/spi/spidev.h>
+#define SPI_IOC_WR_MAX_SPEED_HZ 1074031364
+#define SPI_IOC_WR_MODE 1073834753
 #endif
