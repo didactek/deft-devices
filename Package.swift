@@ -17,6 +17,12 @@ let package = Package(
             name: "LinuxI2C",
             targets: ["LinuxI2C"]),
         .library(
+            name: "LinuxSPIDev",
+            targets: ["LinuxSPIDev"]),
+        .library(
+            name: "LinuxSPI",
+            targets: ["LinuxSPI"]),
+        .library(
             name: "MCP9808",
             targets: ["MCP9808"]),
         .library(
@@ -45,6 +51,11 @@ let package = Package(
         .target(
             name: "LinuxI2C",
             dependencies: ["DeftBus", "LinuxI2CDev"]),
+        .systemLibrary(
+            name: "LinuxSPIDev"),
+        .target(
+            name: "LinuxSPI",
+            dependencies: ["LinuxSPIDev"]),
         .target(
             name: "MCP9808",
             dependencies: ["DeftBus", "DeftLayout"]),
@@ -59,6 +70,6 @@ let package = Package(
 //            dependencies: ["DeftLayout", "DeftBus", "TEA5767"]),
         .target(
             name: "DeftExample",
-            dependencies: ["DeftBus", "DeftLayout", "LinuxI2C", "MCP9808", "TEA5767"]),
+            dependencies: ["DeftBus", "DeftLayout", "LinuxI2C", "LinuxSPI", "MCP9808", "TEA5767"]),
     ]
 )
