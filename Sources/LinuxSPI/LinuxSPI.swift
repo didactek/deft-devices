@@ -55,7 +55,7 @@ public class LinuxSPI {
         var dataCopy = data
         dataCopy.withUnsafeMutableBytes { dataRaw in
             let addressAsInt = UInt(bitPattern: dataRaw.baseAddress)
-            var message = spi_ioc_transfer(tx_buf: UInt64(addressAsInt), rx_buf: 0, len: __u32(dataRaw.count), speed_hz: 0, delay_usecs: 0, bits_per_word: 0, cs_change: 0, tx_nbits: 0, rx_nbits: 0, pad: 0)
+            var message = spi_ioc_transfer(tx_buf: __u64(addressAsInt), rx_buf: 0, len: __u32(dataRaw.count), speed_hz: 0, delay_usecs: 0, bits_per_word: 0, cs_change: 0, tx_nbits: 0, rx_nbits: 0, pad: 0)
             let sendResult = ioctl(fileDescriptor, UInt( 1075866368 )
 /*SPI_IOC_MESSAGE(1)*/, &message)
             //assert(sendResult == 0)  // never a confirmation on send.
