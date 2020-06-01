@@ -55,7 +55,7 @@ let package = Package(
             name: "LinuxSPIDev"),
         .target(
             name: "LinuxSPI",
-            dependencies: ["LinuxSPIDev"]),
+            dependencies: ["DeftBus", "LinuxSPIDev"]),
         .target(
             name: "MCP9808",
             dependencies: ["DeftBus", "DeftLayout"]),

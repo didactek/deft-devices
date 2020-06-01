@@ -9,11 +9,13 @@
 
 import Foundation
 
+import DeftBus
+
 public class ShiftLED {
     let count: Int
-    let bus: LinuxSPI
+    let bus: LinkSPI
 
-    public init(bus: LinuxSPI, stringLength: Int) {
+    public init(bus: LinkSPI, stringLength: Int) {
         count = stringLength
         self.bus = bus
     }
