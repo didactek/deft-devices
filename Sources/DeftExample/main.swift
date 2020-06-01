@@ -12,6 +12,8 @@ import Foundation
 import DeftBus
 import MCP9808
 import TEA5767
+import LinuxSPI
+
 #if os(macOS)
 #else
 import LinuxI2C
@@ -38,6 +40,35 @@ do {  // provide a scope for the ssh-availability guard
 
     var currentTemp = temp.temperature
     print("Temperature is \(currentTemp) C")
+
+
+    let spi = try! LinuxSPI(busID: 0, speedHz: 30_500)
+    let leds = ShiftLED(bus: spi, stringLength: 72)
+
+
+    var rng = SystemRandomNumberGenerator()
+    var current = [0.0, 0.0, 0.0]
+    for _ in 0 ..< 20 {
+        let target: [Double] = [Double(rng.next(upperBound: UInt(256))) / 256, 1.0, 0.0,].shuffled()
+        let steps = 100
+
+        let delta = (0 ..< 3).map {i in
+            (target[i] - current[i]) / Double(steps)
+        }
+
+        for step in 0 ..< steps {
+            for i in 0 ..< 3 {
+                current[i] += delta[i]
+            }
+            let rampLevel = sin(2.0 * .pi * Double(step) / Double(steps)) / 4 + 0.5
+            leds.all(red: current[0] * rampLevel,
+                     green: current[1] * rampLevel,
+                     blue: current[0] * rampLevel,
+                     current: 0.7 )
+            usleep(60)
+        }
+    }
+    leds.clear()
 
     radio.tuneTo(mHz: 94.9)
     radio.executeRequests()
