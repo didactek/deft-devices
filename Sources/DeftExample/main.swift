@@ -13,6 +13,7 @@ import DeftBus
 import MCP9808
 import TEA5767
 import LinuxSPI
+import ShiftLED
 
 #if os(macOS)
 #else

@@ -20,6 +20,8 @@ public class ShiftLED {
         self.bus = bus
     }
 
+
+
     func encode(red: Double, green: Double, blue: Double, current: Double) -> [UInt8] {
         let r8 = UInt8(clamping: Int(red * 255))
         let g8 = UInt8(clamping: Int(green * 255))

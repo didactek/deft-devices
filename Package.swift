@@ -11,6 +11,9 @@ let package = Package(
             name: "DeftBus",
             targets: ["DeftBus"]),
         .library(
+            name: "LEDUtils",
+            targets: ["LEDUtils"]),
+        .library(
             name: "LinuxI2CDev",
             targets: ["LinuxI2CDev"]),
         .library(
@@ -25,6 +28,9 @@ let package = Package(
         .library(
             name: "MCP9808",
             targets: ["MCP9808"]),
+        .library(
+            name: "ShiftLED",
+            targets: ["ShiftLED"]),
         .library(
             name: "TEA5767",
             targets: ["TEA5767"]),
@@ -46,6 +52,9 @@ let package = Package(
         .testTarget(
             name: "DeftBusTests",
             dependencies: ["DeftBus", "DeftLayout"]),
+        .target(
+            name: "LEDUtils",
+            dependencies: []),
         .systemLibrary(
             name: "LinuxI2CDev"),
         .target(
@@ -63,6 +72,9 @@ let package = Package(
             name: "MCP9808Tests",
             dependencies: ["DeftBus", "DeftLayout", "MCP9808"]),
         .target(
+            name: "ShiftLED",
+            dependencies: ["DeftBus", "LEDUtils"]),
+        .target(
             name: "TEA5767",
             dependencies: ["DeftBus", "DeftLayout"]),
 //        .testTarget(
@@ -70,6 +82,6 @@ let package = Package(
 //            dependencies: ["DeftLayout", "DeftBus", "TEA5767"]),
         .target(
             name: "DeftExample",
-            dependencies: ["DeftBus", "DeftLayout", "LinuxI2C", "LinuxSPI", "MCP9808", "TEA5767"]),
+            dependencies: ["DeftBus", "DeftLayout", "LinuxI2C", "LinuxSPI", "MCP9808", "ShiftLED", "TEA5767"]),
     ]
 )
