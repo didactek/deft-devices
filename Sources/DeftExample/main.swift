@@ -10,6 +10,8 @@
 import Foundation
 
 import DeftBus
+import LEDUtils
+
 import MCP9808
 import TEA5767
 import LinuxSPI
@@ -62,9 +64,9 @@ do {  // provide a scope for the ssh-availability guard
                 current[i] += delta[i]
             }
             let rampLevel = sin(2.0 * .pi * Double(step) / Double(steps)) / 4 + 0.5
-            leds.all(red: current[0] * rampLevel,
+            leds.all(color: LEDColor (red: current[0] * rampLevel,
                      green: current[1] * rampLevel,
-                     blue: current[0] * rampLevel,
+                     blue: current[0] * rampLevel),
                      current: 0.7 )
             usleep(60)
         }

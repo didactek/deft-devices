@@ -10,6 +10,7 @@
 import Foundation
 
 import DeftBus
+import LEDUtils
 
 public class ShiftLED {
     let count: Int
@@ -22,10 +23,10 @@ public class ShiftLED {
 
 
 
-    func encode(red: Double, green: Double, blue: Double, current: Double) -> [UInt8] {
-        let r8 = UInt8(clamping: Int(red * 255))
-        let g8 = UInt8(clamping: Int(green * 255))
-        let b8 = UInt8(clamping: Int(blue * 255))
+    func encode(color: LEDColor, current: Double) -> [UInt8] {
+        let r8 = UInt8(clamping: Int(color.red * 255))
+        let g8 = UInt8(clamping: Int(color.green * 255))
+        let b8 = UInt8(clamping: Int(color.blue * 255))
 
         let c5 = UInt8(current * 31)
         let c8 = c5 | 0b1110_0000
@@ -33,14 +34,14 @@ public class ShiftLED {
         return [c8, b8, g8, r8]
     }
 
-    public func all(red: Double, green: Double, blue: Double, current: Double) {
+    public func all(color: LEDColor, current: Double) {
         var buffer = Data()
 
         // start: all zeros
         buffer.append(contentsOf: repeatElement(UInt8(0), count: 4))
 
         for _ in 0..<count {
-            buffer.append(contentsOf: encode(red: red, green: green, blue: blue, current: current))
+            buffer.append(contentsOf: encode(color: color, current: current))
         }
 
         // end: all ones
@@ -50,6 +51,6 @@ public class ShiftLED {
     }
 
     public func clear() {
-        all(red: 0, green: 0, blue: 0, current: 0)
+        all(color: LEDColor(red: 0, green: 0, blue: 0), current: 0)
     }
 }
