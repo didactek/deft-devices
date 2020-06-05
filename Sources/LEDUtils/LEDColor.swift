@@ -19,4 +19,19 @@ public struct LEDColor {
         self.green = green
         self.blue = blue
     }
+
+    public static func randomSaturated() -> LEDColor {
+        let values = [Double.random(in: 0 ... 1.0), 1.0, 0.0,].shuffled()
+        return LEDColor(values: values)
+    }
+}
+
+extension LEDColor {
+    func values() -> [Double] {
+        return [red, green, blue]
+    }
+
+    init(values: [Double]) {
+        self.init(red: values[0], green: values[1], blue: values[2])
+    }
 }

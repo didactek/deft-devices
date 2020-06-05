@@ -46,28 +46,27 @@ do {  // provide a scope for the ssh-availability guard
     var currentTemp = temp.temperature
     print("Temperature is \(currentTemp) C")
 
-
+    let ledCount = 72
     let spi = try! LinuxSPI(busID: 0, speedHz: 30_500)
-    let leds = ShiftLED(bus: spi, stringLength: 72, current: 0.3)
+    let leds = ShiftLED(bus: spi, stringLength: ledCount, current: 0.3)
 
 
-    var rng = SystemRandomNumberGenerator()
-    var left = [0.0, 0.0, 0.0]
-    var middle = [0.0, 0.0, 0.0]
-    var right = [0.0, 0.0, 0.0]
+    var left = LEDColor.randomSaturated()
+    var middle = LEDColor.randomSaturated()
+    var right = LEDColor.randomSaturated()
     for _ in 0 ..< 20 {
         let steps = 30
 
-        let targetLeft: [Double] = [Double(rng.next(upperBound: UInt(256))) / 256, 1.0, 0.0,].shuffled()
-        let planLeft = colorFade(from: LEDColor(values: left), to: LEDColor(values: targetLeft), count: steps)
+        let targetLeft = LEDColor.randomSaturated()
+        let planLeft = colorFade(from: left, to: targetLeft, count: steps)
         left = targetLeft
 
-        let targetMiddle: [Double] = [Double(rng.next(upperBound: UInt(256))) / 256, 1.0, 0.0,].shuffled()
-        let planMiddle = colorFade(from: LEDColor(values: middle), to: LEDColor(values: targetMiddle), count: steps)
+        let targetMiddle = LEDColor.randomSaturated()
+        let planMiddle = colorFade(from: middle, to: targetMiddle, count: steps)
         middle = targetMiddle
 
-        let targetRight: [Double] = [Double(rng.next(upperBound: UInt(256))) / 256, 1.0, 0.0,].shuffled()
-        let planRight = colorFade(from: LEDColor(values: right), to: LEDColor(values: targetRight), count: steps)
+        let targetRight = LEDColor.randomSaturated()
+        let planRight = colorFade(from: right, to: targetRight, count: steps)
         right = targetRight
 
         for i in 0 ..< planLeft.count {
@@ -75,13 +74,13 @@ do {  // provide a scope for the ssh-availability guard
             let momentaryRight = planRight[i]
             let momentaryMiddle = planMiddle[i]
 
-            let fadeLeft = colorFade(from: momentaryLeft, to: momentaryMiddle, count: 36)
+            let fadeLeft = colorFade(from: momentaryLeft, to: momentaryMiddle, count: ledCount / 2)
             for (index, value) in fadeLeft.enumerated() {
                 leds[index] = value
             }
-            let fadeRight = colorFade(from: momentaryMiddle, to: momentaryRight, count: 36)
+            let fadeRight = colorFade(from: momentaryMiddle, to: momentaryRight, count: ledCount / 2)
             for (index, value) in fadeRight.enumerated() {
-                leds[index + 36] = value
+                leds[index + ledCount / 2] = value
             }
             leds.flushUpdates()
             usleep(30)
