@@ -85,6 +85,6 @@ let package = Package(
 //            dependencies: ["DeftLayout", "DeftBus", "TEA5767"]),
         .target(
             name: "DeftExample",
-            dependencies: ["DeftBus", "DeftLayout", "LinuxI2C", "LinuxSPI", "MCP9808", "ShiftLED", "TEA5767"]),
+            dependencies: ["DeftBus", "DeftLayout", "LEDUtils", "LinuxI2C", "LinuxSPI", "MCP9808", "ShiftLED", "TEA5767"]),
     ]
 )
