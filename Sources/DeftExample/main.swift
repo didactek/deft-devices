@@ -11,11 +11,11 @@ import Foundation
 
 import DeftBus
 import LEDUtils
+import LinuxSPI
 
+// specific devices:
 import MCP9808
 import TEA5767
-import LEDUtils
-import LinuxSPI
 import ShiftLED
 
 
@@ -34,20 +34,32 @@ do {  // provide a scope for the ssh-availability guard
     let radioLink = try! I2CToolsLink(transport: pi, busID: 1, nodeAddress: TEA5767_Radio.defaultNodeAddress)
 
     let tempLink = try! I2CToolsLink(transport: pi, busID: 1, nodeAddress: MCP9808_TemperatureSensor.defaultNodeAddress)
+    let spi = try! LinuxSPI(busID: 0, speedHz: 30_500)  // FIXME: just a stub that may compile; not a functional local or remote link.
     #else
     let radioLink = try! LinuxI2C(busID: 1, nodeAddress: TEA5767_Radio.defaultNodeAddress)
     let tempLink = try! LinuxI2C(busID: 1, nodeAddress: MCP9808_TemperatureSensor.defaultNodeAddress)
+    let spi = try! LinuxSPI(busID: 0, speedHz: 30_500)
     #endif
 
-
+    #if false  // all radio code together:
     let radio = TEA5767_Radio(link: radioLink)
-    let temp = MCP9808_TemperatureSensor(link: tempLink)
+    radio.tuneTo(mHz: 94.9)
+    radio.executeRequests()
 
-    var currentTemp = temp.temperature
+    radio.updateStatus()
+    while !radio.ready {
+        radio.updateStatus()
+    }
+
+    print(radio.stereoTuned ? "in stereo" : "mono")
+    print("Radio tuned to \(radio.tuning) MHz")
+    #endif
+
+    let temp = MCP9808_TemperatureSensor(link: tempLink)
+    let currentTemp = temp.temperature
     print("Temperature is \(currentTemp) C")
 
     let ledCount = 72
-    let spi = try! LinuxSPI(busID: 0, speedHz: 30_500)
     let leds = ShiftLED(bus: spi, stringLength: ledCount, current: 0.3)
 
 
@@ -87,21 +99,5 @@ do {  // provide a scope for the ssh-availability guard
         }
     }
     leds.clear()
-
-    radio.tuneTo(mHz: 94.9)
-    radio.executeRequests()
-
-    radio.updateStatus()
-    while !radio.ready {
-        radio.updateStatus()
-    }
-
-    sleep(1)
-    radio.updateStatus()
-    print(radio.stereoTuned ? "in stereo" : "mono")
-    print("Radio tuned to \(radio.tuning) MHz")
-
-    currentTemp = temp.temperature
-    print("Temperature is \(currentTemp) C")
 }
 
