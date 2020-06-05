@@ -15,8 +15,8 @@ import LinuxSPI
 
 // specific devices:
 import MCP9808
-import TEA5767
 import ShiftLED
+import TEA5767
 
 
 #if os(macOS)
@@ -62,13 +62,18 @@ do {  // provide a scope for the ssh-availability guard
     let ledCount = 72
     let leds = ShiftLED(bus: spi, stringLength: ledCount, current: 0.3)
 
+    twoSegmentFade(leds: leds, ledCount: ledCount)
 
+    leds.clear()
+}
+
+func twoSegmentFade(leds: ShiftLED, ledCount: Int) {
+    let steps = 30
+    let cycles = 20
     var left = LEDColor.randomSaturated()
     var middle = LEDColor.randomSaturated()
     var right = LEDColor.randomSaturated()
-    for _ in 0 ..< 20 {
-        let steps = 30
-
+    for _ in 0 ..< cycles {
         let targetLeft = LEDColor.randomSaturated()
         let planLeft = colorFade(from: left, to: targetLeft, count: steps)
         left = targetLeft
@@ -98,6 +103,5 @@ do {  // provide a scope for the ssh-availability guard
             usleep(30)
         }
     }
-    leds.clear()
 }
 
