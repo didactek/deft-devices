@@ -10,9 +10,14 @@
 import Foundation
 
 import DeftBus
+import LEDUtils
+
 import MCP9808
 //import TEA5767
+import LEDUtils
 import LinuxSPI
+import ShiftLED
+
 
 #if os(macOS)
 #else
@@ -50,21 +55,12 @@ do {  // provide a scope for the ssh-availability guard
     var current = [0.0, 0.0, 0.0]
     for _ in 0 ..< 20 {
         let target: [Double] = [Double(rng.next(upperBound: UInt(256))) / 256, 1.0, 0.0,].shuffled()
-        let steps = 100
+        let steps = 30
+        let plan = colorFade(from: LEDColor(values: current), to: LEDColor(values: target), count: steps)
+        current = target
 
-        let delta = (0 ..< 3).map {i in
-            (target[i] - current[i]) / Double(steps)
-        }
-
-        for step in 0 ..< steps {
-            for i in 0 ..< 3 {
-                current[i] += delta[i]
-            }
-            let rampLevel = sin(2.0 * .pi * Double(step) / Double(steps)) / 4 + 0.5
-            leds.all(red: current[0] * rampLevel,
-                     green: current[1] * rampLevel,
-                     blue: current[0] * rampLevel,
-                     current: 0.7 )
+        for color in plan {
+            leds.all(color: color)
             usleep(60)
         }
     }

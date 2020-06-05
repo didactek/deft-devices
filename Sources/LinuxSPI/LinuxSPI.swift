@@ -9,6 +9,7 @@
 
 import Foundation
 
+import DeftBus
 import LinuxSPIDev
 
 #if !os(macOS)
@@ -18,7 +19,7 @@ import Darwin
 #endif
 
 
-public class LinuxSPI {
+public class LinuxSPI: LinkSPI {
     let fileDescriptor: Int32
 
     enum SPIError: Error {
