@@ -53,6 +53,7 @@ do {  // provide a scope for the ssh-availability guard
 
     var rng = SystemRandomNumberGenerator()
     var left = [0.0, 0.0, 0.0]
+    var middle = [0.0, 0.0, 0.0]
     var right = [0.0, 0.0, 0.0]
     for _ in 0 ..< 20 {
         let steps = 30
@@ -61,14 +62,26 @@ do {  // provide a scope for the ssh-availability guard
         let planLeft = colorFade(from: LEDColor(values: left), to: LEDColor(values: targetLeft), count: steps)
         left = targetLeft
 
+        let targetMiddle: [Double] = [Double(rng.next(upperBound: UInt(256))) / 256, 1.0, 0.0,].shuffled()
+        let planMiddle = colorFade(from: LEDColor(values: middle), to: LEDColor(values: targetMiddle), count: steps)
+        middle = targetMiddle
+
         let targetRight: [Double] = [Double(rng.next(upperBound: UInt(256))) / 256, 1.0, 0.0,].shuffled()
         let planRight = colorFade(from: LEDColor(values: right), to: LEDColor(values: targetRight), count: steps)
         right = targetRight
 
-        for (momentaryLeft, momentaryRight) in zip(planLeft, planRight) {
-            let fade = colorFade(from: momentaryLeft, to: momentaryRight, count: 72)
-            for (index, value) in fade.enumerated() {
+        for i in 0 ..< planLeft.count {
+            let momentaryLeft = planLeft[i]
+            let momentaryRight = planRight[i]
+            let momentaryMiddle = planMiddle[i]
+
+            let fadeLeft = colorFade(from: momentaryLeft, to: momentaryMiddle, count: 36)
+            for (index, value) in fadeLeft.enumerated() {
                 leds[index] = value
+            }
+            let fadeRight = colorFade(from: momentaryMiddle, to: momentaryRight, count: 36)
+            for (index, value) in fadeRight.enumerated() {
+                leds[index + 36] = value
             }
             leds.flushUpdates()
             usleep(30)
