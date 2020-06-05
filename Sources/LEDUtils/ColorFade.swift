@@ -9,15 +9,6 @@
 
 import Foundation
 
-public extension LEDColor {
-    func values() -> [Double] {
-        return [red, green, blue]
-    }
-
-    init(values: [Double]) {
-        self.init(red: values[0], green: values[1], blue: values[2])
-    }
-}
 
 public func colorFade(from: LEDColor, to: LEDColor, count: Int) -> [LEDColor] {
     let start = from.values()
