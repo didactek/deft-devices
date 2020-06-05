@@ -48,20 +48,30 @@ do {  // provide a scope for the ssh-availability guard
 
 
     let spi = try! LinuxSPI(busID: 0, speedHz: 30_500)
-    let leds = ShiftLED(bus: spi, stringLength: 72)
+    let leds = ShiftLED(bus: spi, stringLength: 72, current: 0.3)
 
 
     var rng = SystemRandomNumberGenerator()
-    var current = [0.0, 0.0, 0.0]
+    var left = [0.0, 0.0, 0.0]
+    var right = [0.0, 0.0, 0.0]
     for _ in 0 ..< 20 {
-        let target: [Double] = [Double(rng.next(upperBound: UInt(256))) / 256, 1.0, 0.0,].shuffled()
         let steps = 30
-        let plan = colorFade(from: LEDColor(values: current), to: LEDColor(values: target), count: steps)
-        current = target
 
-        for color in plan {
-            leds.all(color: color)
-            usleep(60)
+        let targetLeft: [Double] = [Double(rng.next(upperBound: UInt(256))) / 256, 1.0, 0.0,].shuffled()
+        let planLeft = colorFade(from: LEDColor(values: left), to: LEDColor(values: targetLeft), count: steps)
+        left = targetLeft
+
+        let targetRight: [Double] = [Double(rng.next(upperBound: UInt(256))) / 256, 1.0, 0.0,].shuffled()
+        let planRight = colorFade(from: LEDColor(values: right), to: LEDColor(values: targetRight), count: steps)
+        right = targetRight
+
+        for (momentaryLeft, momentaryRight) in zip(planLeft, planRight) {
+            let fade = colorFade(from: momentaryLeft, to: momentaryRight, count: 72)
+            for (index, value) in fade.enumerated() {
+                leds[index] = value
+            }
+            leds.flushUpdates()
+            usleep(30)
         }
     }
     leds.clear()
