@@ -74,6 +74,9 @@ let package = Package(
         .target(
             name: "ShiftLED",
             dependencies: ["DeftBus", "LEDUtils"]),
+        .testTarget(
+            name: "ShiftLEDTests",
+            dependencies: ["LEDUtils", "LinuxSPI", "ShiftLED"]),
         .target(
             name: "TEA5767",
             dependencies: ["DeftBus", "DeftLayout"]),
