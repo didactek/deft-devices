@@ -59,7 +59,8 @@ class ShiftLEDTests: XCTestCase {
         }
 
         let testColor = LEDColor(red: 0.5, green: 0.25, blue: 1.0)
-        leds.all(color: testColor, current: 0.75)
+        leds.setCurrent(current: 0.75)
+        leds.all(color: testColor)
 
         link.checkExpectedConsumed()
     }
@@ -75,7 +76,7 @@ class ShiftLEDTests: XCTestCase {
         }
 
         let testColor = LEDColor(red: 0.5, green: 0.25, blue: 1.0)
-        leds.all(color: testColor, current: 0.75)
+        leds.all(color: testColor)
 
         link.checkExpectedConsumed()
     }

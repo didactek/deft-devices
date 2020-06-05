@@ -18,12 +18,12 @@ public class ShiftLED {
     var buffer: Data
     var current: Double
 
-    public init(bus: LinkSPI, stringLength: Int) {
+    public init(bus: LinkSPI, stringLength: Int, current: Double = 0.5) {
         count = stringLength
         self.bus = bus
         buffer = Data(repeating: 0, count: (count + 1) * 4)
         buffer.append(Data(repeating: 0xff, count: 4))
-        current = 0.25
+        self.current = current
     }
 
     func encode(color: LEDColor, current: Double) -> [UInt8] {
@@ -47,7 +47,18 @@ public class ShiftLED {
                         blue: Double(blue8) / Double(UInt8.max))
     }
 
-    subscript(index: Int) -> LEDColor {
+    /// Set the current used for the entire string as a fraction of full.
+    ///
+    /// Will take effect at next udpate.
+    /// Note: it is one of only 32 levels, so is not useful for controlling fades.
+    /// You probably want to set-and-forget.
+    public func setCurrent(current: Double) {
+        assert(current >= 0, "current must be positive")
+        assert(current <= 1.0, "current in range 0...1")
+        self.current = current
+    }
+
+    public subscript(index: Int) -> LEDColor {
         get {
             decode(data: buffer.subdata(in: (index + 1) * 4 ..< (index + 2) * 4))
         }
@@ -56,8 +67,7 @@ public class ShiftLED {
         }
     }
 
-    public func all(color: LEDColor, current: Double) {
-        self.current = current
+    public func all(color: LEDColor) {
         for index in 0..<count {
             self[index] = color
         }
@@ -65,6 +75,6 @@ public class ShiftLED {
     }
 
     public func clear() {
-        all(color: LEDColor(red: 0, green: 0, blue: 0), current: 0)
+        all(color: LEDColor(red: 0, green: 0, blue: 0))
     }
 }

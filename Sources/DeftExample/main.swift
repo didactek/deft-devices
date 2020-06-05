@@ -66,8 +66,7 @@ do {  // provide a scope for the ssh-availability guard
             let rampLevel = sin(2.0 * .pi * Double(step) / Double(steps)) / 4 + 0.5
             leds.all(color: LEDColor (red: current[0] * rampLevel,
                      green: current[1] * rampLevel,
-                     blue: current[0] * rampLevel),
-                     current: 0.7 )
+                     blue: current[0] * rampLevel))
             usleep(60)
         }
     }
