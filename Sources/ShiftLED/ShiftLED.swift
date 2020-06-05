@@ -60,18 +60,24 @@ public class ShiftLED {
 
     public subscript(index: Int) -> LEDColor {
         get {
-            decode(data: buffer.subdata(in: (index + 1) * 4 ..< (index + 2) * 4))
+            assert((0 ..< count).contains(index), "range error")
+            return decode(data: buffer.subdata(in: (index + 1) * 4 ..< (index + 2) * 4))
         }
         set {
+            assert((0 ..< count).contains(index), "range error")
             buffer.replaceSubrange( ((index + 1) * 4) ..< ((index + 2) * 4), with: encode(color: newValue, current: current))
         }
+    }
+
+    public func flushUpdates() {
+        bus.write(data: buffer, count: buffer.count)
     }
 
     public func all(color: LEDColor) {
         for index in 0..<count {
             self[index] = color
         }
-        bus.write(data: buffer, count: buffer.count)
+        flushUpdates()
     }
 
     public func clear() {
