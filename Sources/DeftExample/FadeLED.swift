@@ -12,7 +12,7 @@ import Foundation
 import LEDUtils
 import ShiftLED
 
-// FIXME: make this an extension on ShiftLED?
+
 func twoSegmentFade(leds: ShiftLED, ledCount: Int) {
     let steps = 30
     let cycles = 20
@@ -21,15 +21,15 @@ func twoSegmentFade(leds: ShiftLED, ledCount: Int) {
     var right = LEDColor.randomSaturated()
     for _ in 0 ..< cycles {
         let targetLeft = LEDColor.randomSaturated()
-        let planLeft = colorFade(from: left, to: targetLeft, count: steps)
+        let planLeft = left.fade(to: targetLeft, count: steps)
         left = targetLeft
 
         let targetMiddle = LEDColor.randomSaturated()
-        let planMiddle = colorFade(from: middle, to: targetMiddle, count: steps)
+        let planMiddle = middle.fade(to: targetMiddle, count: steps)
         middle = targetMiddle
 
         let targetRight = LEDColor.randomSaturated()
-        let planRight = colorFade(from: right, to: targetRight, count: steps)
+        let planRight = right.fade(to: targetRight, count: steps)
         right = targetRight
 
         for i in 0 ..< planLeft.count {
@@ -37,11 +37,11 @@ func twoSegmentFade(leds: ShiftLED, ledCount: Int) {
             let momentaryRight = planRight[i]
             let momentaryMiddle = planMiddle[i]
 
-            let fadeLeft = colorFade(from: momentaryLeft, to: momentaryMiddle, count: ledCount / 2)
+            let fadeLeft = momentaryLeft.fade(to: momentaryMiddle, count: ledCount / 2)
             for (index, value) in fadeLeft.enumerated() {
                 leds[index] = value
             }
-            let fadeRight = colorFade(from: momentaryMiddle, to: momentaryRight, count: ledCount / 2)
+            let fadeRight = momentaryMiddle.fade(to: momentaryRight, count: ledCount / 2)
             for (index, value) in fadeRight.enumerated() {
                 leds[index + ledCount / 2] = value
             }

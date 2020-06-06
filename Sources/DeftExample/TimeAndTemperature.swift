@@ -25,14 +25,14 @@ func tempMonitorFade(sensor: MCP9808_TemperatureSensor, leds: ShiftLED, ledCount
         let hotTarget = LEDColor.randomSaturated()
         let coldTarget = LEDColor.randomSaturated()
 
-        let hotRange = colorFade(from: hotStart, to: hotTarget, count: fadeSteps)
-        let coldRange = colorFade(from: coldStart, to: coldTarget, count: fadeSteps)
+        let hotRange = hotStart.fade(to: hotTarget, count: fadeSteps)
+        let coldRange = coldStart.fade(to: coldTarget, count: fadeSteps)
 
         hotStart = hotTarget
         coldStart = coldTarget
 
         for fadeCycle in 0 ..< fadeSteps {
-            let range = colorFade(from: coldRange[fadeCycle], to: hotRange[fadeCycle], count: resolution)
+            let range = coldRange[fadeCycle].fade(to: hotRange[fadeCycle], count: resolution)
             history.recordObservation(temperature: sensor.temperature)
 
             let observations = history.averages().suffix(ledCount)
