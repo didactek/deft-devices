@@ -60,11 +60,10 @@ do {  // provide a scope for the ssh-availability guard
     print("Temperature is \(currentTemp) C")
 
     let ledCount = 72
-    let leds = ShiftLED(bus: spi, stringLength: ledCount, current: 0.3)
+    let leds = ShiftLED(bus: spi, stringLength: ledCount, current: 0.05)
 
 //    twoSegmentFade(leds: leds, ledCount: ledCount)
     tempMonitorFade(sensor: temp, leds: leds, ledCount: ledCount)
-
     leds.clear()
 }
 
@@ -109,19 +108,20 @@ func twoSegmentFade(leds: ShiftLED, ledCount: Int) {
 func tempMonitorFade(sensor: MCP9808_TemperatureSensor, leds: ShiftLED, ledCount: Int) {
     let history = TimeAndTemperature()
     let resolution = 100
+    history.recordObservation(temperature: sensor.temperature)
+
+    let hot = LEDColor.randomSaturated()
+    let cold = LEDColor.randomSaturated()
+    let range = colorFade(from: cold, to: hot, count: resolution)
 
     for _ in 0 ..< 1000 {
         history.recordObservation(temperature: sensor.temperature)
 
-        let hot = LEDColor.randomSaturated()
-        let cold = LEDColor.randomSaturated()
-
-        let range = colorFade(from: cold, to: hot, count: resolution)
-        let observations = history.averages().prefix(ledCount)
+        let observations = history.averages().suffix(ledCount)
         let lowTemp = observations.min()!
         let hiTemp = observations.max()!
 
-        let indices = observations.map { (hiTemp == lowTemp) ? 0 : Int( Double(resolution) * ($0 - lowTemp / (hiTemp - lowTemp))) }
+        let indices = observations.map { (hiTemp == lowTemp) ? 0 : Int( Double(resolution) * ($0 - lowTemp) / (hiTemp - lowTemp)) }
 
         for (index, observation) in indices.enumerated() {
             leds[index] = range[observation]
