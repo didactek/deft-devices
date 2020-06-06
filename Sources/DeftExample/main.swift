@@ -15,8 +15,8 @@ import LinuxSPI
 
 // specific devices:
 import MCP9808
-//import TEA5767
 import ShiftLED
+//import TEA5767
 
 
 #if os(macOS)
@@ -62,13 +62,20 @@ do {  // provide a scope for the ssh-availability guard
     let ledCount = 72
     let leds = ShiftLED(bus: spi, stringLength: ledCount, current: 0.3)
 
+//    twoSegmentFade(leds: leds, ledCount: ledCount)
+    tempMonitorFade(sensor: temp, leds: leds, ledCount: ledCount)
+
+    leds.clear()
+}
+
+func twoSegmentFade(leds: ShiftLED, ledCount: Int) {
+    let steps = 30
+    let cycles = 20
 
     var left = LEDColor.randomSaturated()
     var middle = LEDColor.randomSaturated()
     var right = LEDColor.randomSaturated()
-    for _ in 0 ..< 20 {
-        let steps = 30
-
+    for _ in 0 ..< cycles {
         let targetLeft = LEDColor.randomSaturated()
         let planLeft = colorFade(from: left, to: targetLeft, count: steps)
         left = targetLeft
@@ -98,5 +105,73 @@ do {  // provide a scope for the ssh-availability guard
             usleep(30)
         }
     }
-    leds.clear()
+}
+
+func tempMonitorFade(sensor: MCP9808_TemperatureSensor, leds: ShiftLED, ledCount: Int) {
+    let history = TimeAndTemperature()
+    let resolution = 100
+
+    for _ in 0 ..< 1000 {
+        history.recordObservation(temperature: sensor.temperature)
+
+        let hot = LEDColor.randomSaturated()
+        let cold = LEDColor.randomSaturated()
+
+        let range = colorFade(from: cold, to: hot, count: resolution)
+        let observations = history.averages().prefix(ledCount)
+        let lowTemp = observations.min()!
+        let hiTemp = observations.max()!
+
+        let indices = observations.map { (hiTemp == lowTemp) ? 0 : Int( Double(resolution) * ($0 - lowTemp / (hiTemp - lowTemp))) }
+
+        for (index, observation) in indices.enumerated() {
+            leds[index] = range[observation]
+        }
+        leds.flushUpdates()
+        usleep(300_000)
+    }
+}
+
+/// Log time and temperature and report averages over some period
+class TimeAndTemperature {
+    class Averager {
+        var sampleCount: Int = 0
+        var cumulative: Double = 0
+
+        func record(entry: Double) {
+            cumulative += entry
+            sampleCount += 1
+        }
+
+        init(firstValue: Double) {
+            record(entry: firstValue)
+        }
+
+        func average() -> Double {
+            return cumulative / Double(sampleCount)
+        }
+    }
+
+    var record: [Int : Averager] = [:]
+
+    func recordObservation(temperature: Double, atTime: Date = Date()) {
+        // FIXME: maybe clear entries rolling forward?
+        let midnight = Calendar.current.startOfDay(for: atTime)
+        let atMinute = Int(atTime.timeIntervalSince(midnight) / 2) // FIXME: 60
+
+        if let accumulator = record[atMinute] {
+            accumulator.record(entry: temperature)
+        }
+        else {
+            record[atMinute] = Averager(firstValue: temperature)
+        }
+    }
+
+    // FIXME: split by blocks of minutes
+    func averages() -> [Double] {
+        let sorted = record.sorted { kv1, kv2 in
+            return kv1.key < kv2.key
+        }
+        return sorted.map {_, value in value.average() }
+    }
 }
