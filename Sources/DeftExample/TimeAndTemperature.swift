@@ -16,26 +16,46 @@ import ShiftLED
 func tempMonitorFade(sensor: MCP9808_TemperatureSensor, leds: ShiftLED, ledCount: Int) {
     let history = TimeAndTemperature()
     let resolution = 100
+    let fadeSteps = 100
     history.recordObservation(temperature: sensor.temperature)
 
-    let hot = LEDColor.randomSaturated()
-    let cold = LEDColor.randomSaturated()
-    let range = colorFade(from: cold, to: hot, count: resolution)
+    var hotStart = LEDColor.randomSaturated()
+    var coldStart = LEDColor.randomSaturated()
+    while true {
+        let hotTarget = LEDColor.randomSaturated()
+        let coldTarget = LEDColor.randomSaturated()
 
-    for _ in 0 ..< 1000 {
-        history.recordObservation(temperature: sensor.temperature)
+        let hotRange = colorFade(from: hotStart, to: hotTarget, count: fadeSteps)
+        let coldRange = colorFade(from: coldStart, to: coldTarget, count: fadeSteps)
 
-        let observations = history.averages().suffix(ledCount)
-        let lowTemp = observations.min()!
-        let hiTemp = observations.max()!
+        hotStart = hotTarget
+        coldStart = coldTarget
 
-        let indices = observations.map { (hiTemp == lowTemp) ? 0 : Int( Double(resolution) * ($0 - lowTemp) / (hiTemp - lowTemp)) }
+        for fadeCycle in 0 ..< fadeSteps {
+            let range = colorFade(from: coldRange[fadeCycle], to: hotRange[fadeCycle], count: resolution)
+            history.recordObservation(temperature: sensor.temperature)
 
-        for (index, observation) in indices.enumerated() {
-            leds[index] = range[observation]
+            let observations = history.averages().suffix(ledCount)
+            let lowTemp = observations.min()!
+            let hiTemp = observations.max()!
+
+            let indices = observations.map { (hiTemp == lowTemp) ? 0 : Int( Double(resolution) * ($0 - lowTemp) / (hiTemp - lowTemp)) }
+
+            for (index, observation) in indices.enumerated() {
+                var i = observation
+                if i < 0 {
+                    print("out of range observation \(i) clamped to 0")
+                    i = 0
+                }
+                if i >= resolution {
+                    print("out of range observation \(i) clamped to \(resolution - 1)")
+                    i = resolution - 1
+                }
+                leds[index] = range[observation]
+            }
+            leds.flushUpdates()
+            usleep(300_000)
         }
-        leds.flushUpdates()
-        usleep(300_000)
     }
 }
 
@@ -59,26 +79,24 @@ class TimeAndTemperature {
         }
     }
 
-    var record: [Int : Averager] = [:]
+    var record: [(time: Int, average: Averager)] = []
 
     func recordObservation(temperature: Double, atTime: Date = Date()) {
-        // FIXME: maybe clear entries rolling forward?
         let midnight = Calendar.current.startOfDay(for: atTime)
         let atMinute = Int(atTime.timeIntervalSince(midnight) / 2) // FIXME: 60
 
-        if let accumulator = record[atMinute] {
-            accumulator.record(entry: temperature)
+        if record.last?.time == atMinute {
+            record.last!.average.record(entry: temperature)
         }
         else {
-            record[atMinute] = Averager(firstValue: temperature)
+            while (record.count > 72) {  // FIXME: magic number
+                let _ = record.removeFirst()
+            }
+            record.append((time: atMinute, average: Averager(firstValue: temperature)))
         }
     }
 
-    // FIXME: split by blocks of minutes
     func averages() -> [Double] {
-        let sorted = record.sorted { kv1, kv2 in
-            return kv1.key < kv2.key
-        }
-        return sorted.map {_, value in value.average() }
+        return record.map { $0.average.average() }
     }
 }
