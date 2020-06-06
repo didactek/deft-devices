@@ -39,18 +39,9 @@ func tempMonitorFade(sensor: MCP9808_TemperatureSensor, leds: ShiftLED, ledCount
             let lowTemp = observations.min()!
             let hiTemp = observations.max()!
 
-            let indices = observations.map { (hiTemp == lowTemp) ? 0 : Int( Double(resolution) * ($0 - lowTemp) / (hiTemp - lowTemp)) }
+            let indices = observations.map { (hiTemp == lowTemp) ? 0 : Int( Double(resolution - 1) * ($0 - lowTemp) / (hiTemp - lowTemp)) }
 
             for (index, observation) in indices.enumerated() {
-                var i = observation
-                if i < 0 {
-                    print("out of range observation \(i) clamped to 0")
-                    i = 0
-                }
-                if i >= resolution {
-                    print("out of range observation \(i) clamped to \(resolution - 1)")
-                    i = resolution - 1
-                }
                 leds[index] = range[observation]
             }
             leds.flushUpdates()

@@ -61,6 +61,7 @@ do {  // provide a scope for the ssh-availability guard
 
     let ledCount = 72
     let leds = ShiftLED(bus: spi, stringLength: ledCount, current: 0.05)
+    leds.clear()  // in case the LEDs are already lit
 
 //    twoSegmentFade(leds: leds, ledCount: ledCount)
     tempMonitorFade(sensor: temp, leds: leds, ledCount: ledCount)
