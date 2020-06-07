@@ -65,6 +65,6 @@ do {  // provide a scope for the ssh-availability guard
 
 //    twoSegmentFade(leds: leds, ledCount: ledCount)
     tempMonitorFade(sensor: temp, leds: leds, ledCount: ledCount)
-    leds.clear()
+    prideFlag(leds: leds, ledCount: ledCount)
 }
 
