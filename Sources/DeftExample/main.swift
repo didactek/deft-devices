@@ -82,7 +82,13 @@ do {  // provide a scope for the ssh-availability guard
     }
     RunLoop.current.add(displayTemperature, forMode: .default)
 
-//    twoSegmentFade(leds: leds, ledCount: ledCount)
+    // Or just random prettiness:
+    let fadeDisplay = TwoSegmentFade(leds: leds, ledCount: ledCount)
+    let displayFade = Timer(timeInterval: 0.03, repeats: true) {_ in
+        fadeDisplay.update()
+    }
+    RunLoop.current.add(displayFade, forMode: .default)
+
     RunLoop.current.run(mode: .default, before: Date.distantFuture)
 
     prideFlag(leds: leds, ledCount: ledCount)

@@ -13,40 +13,47 @@ import LEDUtils
 import ShiftLED
 
 
-func twoSegmentFade(leds: ShiftLED, ledCount: Int) {
-    let steps = 30
-    let cycles = 20
-    var left = LEDColor.randomSaturated()
-    var middle = LEDColor.randomSaturated()
-    var right = LEDColor.randomSaturated()
-    for _ in 0 ..< cycles {
-        let targetLeft = LEDColor.randomSaturated()
-        let planLeft = left.fade(to: targetLeft, count: steps)
-        left = targetLeft
+class TwoSegmentFade {
+    let fadeRange = 30 ..< 50
+    let leds: ShiftLED
+    let ledCount: Int
 
-        let targetMiddle = LEDColor.randomSaturated()
-        let planMiddle = middle.fade(to: targetMiddle, count: steps)
-        middle = targetMiddle
+    var leftPlan: [LEDColor]
+    var middlePlan: [LEDColor]
+    var rightPlan: [LEDColor]
 
-        let targetRight = LEDColor.randomSaturated()
-        let planRight = right.fade(to: targetRight, count: steps)
-        right = targetRight
+    init(leds: ShiftLED, ledCount: Int) {
+        self.leds = leds
+        self.ledCount = ledCount
 
-        for i in 0 ..< planLeft.count {
-            let momentaryLeft = planLeft[i]
-            let momentaryRight = planRight[i]
-            let momentaryMiddle = planMiddle[i]
+        leftPlan = [LEDColor.randomSaturated()]
+        middlePlan = [LEDColor.randomSaturated()]
+        rightPlan = [LEDColor.randomSaturated()]
+    }
 
-            let fadeLeft = momentaryLeft.fade(to: momentaryMiddle, count: ledCount / 2)
-            for (index, value) in fadeLeft.enumerated() {
-                leds[index] = value
-            }
-            let fadeRight = momentaryMiddle.fade(to: momentaryRight, count: ledCount / 2)
-            for (index, value) in fadeRight.enumerated() {
-                leds[index + ledCount / 2] = value
-            }
-            leds.flushUpdates()
-            usleep(30)
+    func update() {
+        let left = leftPlan.removeFirst()
+        if leftPlan.isEmpty {
+            leftPlan = left.fade(to: LEDColor.randomSaturated(), count: Int.random(in: fadeRange))
         }
+        let middle = middlePlan.removeFirst()
+        if middlePlan.isEmpty {
+            middlePlan = middle.fade(to: LEDColor.randomSaturated(), count: Int.random(in: fadeRange))
+        }
+        let right = rightPlan.removeFirst()
+        if rightPlan.isEmpty {
+            rightPlan = right.fade(to: LEDColor.randomSaturated(), count: Int.random(in: fadeRange))
+        }
+
+
+        let fadeLeft = left.fade(to: middle, count: ledCount / 2)
+        for (index, value) in fadeLeft.enumerated() {
+            leds[index] = value
+        }
+        let fadeRight = middle.fade(to: right, count: ledCount / 2)
+        for (index, value) in fadeRight.enumerated() {
+            leds[index + ledCount / 2] = value
+        }
+        leds.flushUpdates()
     }
 }
