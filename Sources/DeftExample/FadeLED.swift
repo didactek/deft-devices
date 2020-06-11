@@ -14,7 +14,7 @@ import ShiftLED
 
 
 class TwoSegmentFade {
-    let fadeRange = 30 ..< 50
+    let fadeRange = 30 ..< 80
     let leds: ShiftLED
     let ledCount: Int
 

@@ -20,7 +20,7 @@ extension LEDColor {
         return (0 ..< count).map { index in
             let step = Double(index)
             // modulate results a little
-            let rampLevel = sin(2.0 * .pi * step / steps ) / 4 + 0.75
+            let rampLevel = sin(2.0 * .pi * step / steps ) / 10 + 0.9
             let vector = zip(start, delta).map { ($0.0 + step * $0.1) * rampLevel }
             return LEDColor(values: vector)
         }
