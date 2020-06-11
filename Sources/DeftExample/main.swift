@@ -59,7 +59,7 @@ do {  // provide a scope for the ssh-availability guard
     let currentTemp = temp.temperature
     print("Temperature is \(currentTemp) C")
 
-    let ledCount = 72
+    let ledCount = 73
     let leds = ShiftLED(bus: spi, stringLength: ledCount, current: 0.05)
     leds.clear()  // in case the LEDs are already lit
 
@@ -70,19 +70,23 @@ do {  // provide a scope for the ssh-availability guard
 
     // Add a temperature record every second:
     let temperatureTracker = TimeAndTemperature()
-    let _ = Timer(timeInterval: 1, repeats: true) {_ in
+    let sampleTemperature = Timer(timeInterval: 1, repeats: true) {_ in
         temperatureTracker.recordObservation(temperature: temp.temperature)
     }
+    RunLoop.current.add(sampleTemperature, forMode: .default)
 
     // Fade the temperature display continuously:
     let temperatureDisplay = TemperatureOverTimeDisplay(leds: leds, ledCount: ledCount)
-    let _ = Timer(timeInterval: 0.3, repeats: true) {_ in
+    let displayTemperature = Timer(timeInterval: 0.3, repeats: true) {_ in
         temperatureDisplay.update(history: temperatureTracker.averages())
     }
+    RunLoop.current.add(displayTemperature, forMode: .default)
 
 //    twoSegmentFade(leds: leds, ledCount: ledCount)
-    RunLoop.current.run()
+    RunLoop.current.run(mode: .default, before: Date.distantFuture)
 
     prideFlag(leds: leds, ledCount: ledCount)
+    sleep(2)
+    leds.clear()
 }
 
