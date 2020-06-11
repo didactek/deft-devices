@@ -17,7 +17,7 @@ func prideFlag(leds: ShiftLED, ledCount: Int) {
     let bandHeight = ledCount / colors.count
     for i in 0 ..< ledCount {
         var index = i / bandHeight
-        if index >= colors.count { index = colors.count }
+        if index >= colors.count { index = colors.count - 1 }
         leds[i] = colors[index]
     }
     leds.flushUpdates()
