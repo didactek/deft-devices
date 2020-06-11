@@ -13,42 +13,48 @@ import MCP9808
 import ShiftLED
 
 
-func tempMonitorFade(sensor: MCP9808_TemperatureSensor, leds: ShiftLED, ledCount: Int) {
-    let history = TimeAndTemperature()
-    let resolution = 100
+class TemperatureOverTimeDisplay {
     let fadeSteps = 100
-    history.recordObservation(temperature: sensor.temperature)
+    let valueResolution = 100
 
-    var hotStart = LEDColor.randomSaturated()
-    var coldStart = LEDColor.randomSaturated()
-    while true {
-        let hotTarget = LEDColor.randomSaturated()
-        let coldTarget = LEDColor.randomSaturated()
+    let leds: ShiftLED
+    let ledCount: Int
 
-        let hotRange = hotStart.fade(to: hotTarget, count: fadeSteps)
-        let coldRange = coldStart.fade(to: coldTarget, count: fadeSteps)
+    var minEndpointPlan: [LEDColor]
+    var maxEndpointPlan: [LEDColor]
 
-        hotStart = hotTarget
-        coldStart = coldTarget
+    init(leds: ShiftLED, ledCount: Int) {
+        self.leds = leds
+        self.ledCount = ledCount
 
-        for fadeCycle in 0 ..< fadeSteps {
-            let range = coldRange[fadeCycle].fade(to: hotRange[fadeCycle], count: resolution)
-            history.recordObservation(temperature: sensor.temperature)
+        minEndpointPlan = [LEDColor.randomSaturated()]  // Enhancement: could evolve out of phase
+        maxEndpointPlan = [LEDColor.randomSaturated()]
+    }
 
-            let observations = history.averages().suffix(ledCount)
-            let lowTemp = observations.min()!
-            let hiTemp = observations.max()!
-
-            let indices = observations.map { (hiTemp == lowTemp) ? 0 : Int( Double(resolution - 1) * ($0 - lowTemp) / (hiTemp - lowTemp)) }
-
-            for (index, observation) in indices.enumerated() {
-                leds[index] = range[observation]
-            }
-            leds.flushUpdates()
-            usleep(300_000)
+    func update(history: [Double]) {
+        let minEndpoint = minEndpointPlan.removeFirst()
+        if minEndpointPlan.isEmpty {
+            minEndpointPlan = minEndpoint.fade(to: LEDColor.randomSaturated(), count: fadeSteps)
         }
+        let maxEndpoint = maxEndpointPlan.removeFirst()
+        if maxEndpointPlan.isEmpty {
+            maxEndpointPlan = maxEndpoint.fade(to: LEDColor.randomSaturated(), count: fadeSteps)
+        }
+
+        // map range
+        let colorEncoding = minEndpoint.fade(to: maxEndpoint, count: valueResolution)
+        let observations = history.suffix(ledCount)
+        let lowValue = observations.min()!
+        let hiValue = observations.max()!
+        let indices = observations.map { (hiValue == lowValue) ? 0 : Int( Double(valueResolution - 1) * ($0 - lowValue) / (hiValue - lowValue)) }
+
+        for (index, observation) in indices.enumerated() {
+            leds[index] = colorEncoding[observation]
+        }
+        leds.flushUpdates()
     }
 }
+
 
 /// Log time and temperature and report averages over some period
 class TimeAndTemperature {
@@ -70,7 +76,7 @@ class TimeAndTemperature {
         }
     }
 
-    var record: [(time: Int, average: Averager)] = []
+    private var record: [(time: Int, average: Averager)] = []
 
     func recordObservation(temperature: Double, atTime: Date = Date()) {
         let midnight = Calendar.current.startOfDay(for: atTime)

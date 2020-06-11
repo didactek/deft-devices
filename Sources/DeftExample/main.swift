@@ -63,8 +63,26 @@ do {  // provide a scope for the ssh-availability guard
     let leds = ShiftLED(bus: spi, stringLength: ledCount, current: 0.05)
     leds.clear()  // in case the LEDs are already lit
 
+
+    // Set up the RunLoop:
+    print("press RETURN to exit")
+    FileHandle.standardInput.readInBackgroundAndNotify() // FIXME: later: use the data
+
+    // Add a temperature record every second:
+    let temperatureTracker = TimeAndTemperature()
+    let _ = Timer(timeInterval: 1, repeats: true) {_ in
+        temperatureTracker.recordObservation(temperature: temp.temperature)
+    }
+
+    // Fade the temperature display continuously:
+    let temperatureDisplay = TemperatureOverTimeDisplay(leds: leds, ledCount: ledCount)
+    let _ = Timer(timeInterval: 0.3, repeats: true) {_ in
+        temperatureDisplay.update(history: temperatureTracker.averages())
+    }
+
 //    twoSegmentFade(leds: leds, ledCount: ledCount)
-    tempMonitorFade(sensor: temp, leds: leds, ledCount: ledCount)
+    RunLoop.current.run()
+
     prideFlag(leds: leds, ledCount: ledCount)
 }
 
