@@ -63,10 +63,10 @@ do {  // provide a scope for the ssh-availability guard
     let leds = ShiftLED(bus: spi, stringLength: ledCount, current: 0.05)
     leds.clear()  // in case the LEDs are already lit
 
-
+    // ////////////////////////////////////////////////
     // Set up the RunLoop:
-    print("press RETURN to exit")
-    FileHandle.standardInput.readInBackgroundAndNotify() // FIXME: later: use the data
+    // ////////////////////////////////////////////////
+
 
     // Add a temperature record every second:
     let temperatureTracker = TimeAndTemperature()
@@ -89,7 +89,27 @@ do {  // provide a scope for the ssh-availability guard
     }
     RunLoop.current.add(displayFade, forMode: .default)
 
-    RunLoop.current.run(mode: .default, before: Date.distantFuture)
+    print("press RETURN to exit")
+    FileHandle.standardInput.readInBackgroundAndNotify() // FIXME: later: use the data
+    var keepRunning = true
+
+    let _ = NotificationCenter.default
+        .addObserver(forName: FileHandle.readCompletionNotification,
+                     object: FileHandle.standardInput, queue: nil) { aboutWhat in
+                        guard let data = aboutWhat.userInfo?[NSFileHandleNotificationDataItem] as? Data,
+                            let string = String(bytes: data, encoding: .ascii) else {
+                                fatalError("stdin reported data, but none present")
+                        }
+                        switch string.trimmingCharacters(in: .whitespacesAndNewlines) {
+                        case "":
+                            keepRunning = false
+                        default:
+                            FileHandle.standardInput.readInBackgroundAndNotify()
+                        }
+    }
+    while keepRunning {
+        RunLoop.current.run(mode: .default, before: Date.distantFuture)
+    }
 
     prideFlag(leds: leds, ledCount: ledCount)
     sleep(2)
