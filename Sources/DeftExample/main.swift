@@ -18,6 +18,12 @@ import MCP9808
 import ShiftLED
 import TEA5767
 
+extension RunLoop.Mode {
+    static let temperature = Self("displayTemperature")
+    static let fade = Self("displayFade")
+    static let flag = Self("displayFade")
+}
+
 
 #if os(macOS)
 #else
@@ -73,25 +79,27 @@ do {  // provide a scope for the ssh-availability guard
     let sampleTemperature = Timer(timeInterval: 1, repeats: true) {_ in
         temperatureTracker.recordObservation(temperature: temp.temperature)
     }
-    RunLoop.current.add(sampleTemperature, forMode: .default)
+    RunLoop.current.add(sampleTemperature, forMode: .fade)
+    RunLoop.current.add(sampleTemperature, forMode: .temperature)
+    RunLoop.current.add(sampleTemperature, forMode: .flag)
 
     // Fade the temperature display continuously:
     let temperatureDisplay = TemperatureOverTimeDisplay(leds: leds, ledCount: ledCount)
     let displayTemperature = Timer(timeInterval: 0.3, repeats: true) {_ in
         temperatureDisplay.update(history: temperatureTracker.averages())
     }
-    RunLoop.current.add(displayTemperature, forMode: .default)
+    RunLoop.current.add(displayTemperature, forMode: .temperature)
 
     // Or just random prettiness:
     let fadeDisplay = TwoSegmentFade(leds: leds, ledCount: ledCount)
     let displayFade = Timer(timeInterval: 0.03, repeats: true) {_ in
         fadeDisplay.update()
     }
-    RunLoop.current.add(displayFade, forMode: .default)
+    RunLoop.current.add(displayFade, forMode: .fade)
 
-    print("press RETURN to exit")
+    print("press RETURN to exit, or one of flag / temp / fade")
     FileHandle.standardInput.readInBackgroundAndNotify() // FIXME: later: use the data
-    var keepRunning = true
+    var keepRunningInMode: RunLoop.Mode? = .temperature
 
     let _ = NotificationCenter.default
         .addObserver(forName: FileHandle.readCompletionNotification,
@@ -100,15 +108,22 @@ do {  // provide a scope for the ssh-availability guard
                             let string = String(bytes: data, encoding: .ascii) else {
                                 fatalError("stdin reported data, but none present")
                         }
-                        switch string.trimmingCharacters(in: .whitespacesAndNewlines) {
+                        switch string.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
                         case "":
-                            keepRunning = false
-                        default:
-                            FileHandle.standardInput.readInBackgroundAndNotify()
+                            keepRunningInMode = nil
+                        case "flag":
+                            keepRunningInMode = .flag
+                            prideFlag(leds: leds, ledCount: ledCount)
+                        case "temp":
+                            keepRunningInMode = .temperature
+                        case "fade":
+                            keepRunningInMode = .fade
+                        default: break
                         }
+                        FileHandle.standardInput.readInBackgroundAndNotify()
     }
-    while keepRunning {
-        RunLoop.current.run(mode: .default, before: Date.distantFuture)
+    while let mode = keepRunningInMode {
+        RunLoop.current.run(mode: mode, before: Date.distantFuture)
     }
 
     prideFlag(leds: leds, ledCount: ledCount)
