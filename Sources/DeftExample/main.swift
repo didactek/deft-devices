@@ -21,7 +21,7 @@ import TEA5767
 extension RunLoop.Mode {
     static let temperature = Self("displayTemperature")
     static let fade = Self("displayFade")
-    static let flag = Self("displayFade")
+    static let flag = Self("displayFlag")
 }
 
 
@@ -80,8 +80,8 @@ do {  // provide a scope for the ssh-availability guard
         temperatureTracker.recordObservation(temperature: temp.temperature)
     }
     RunLoop.current.add(sampleTemperature, forMode: .fade)
-    RunLoop.current.add(sampleTemperature, forMode: .temperature)
     RunLoop.current.add(sampleTemperature, forMode: .flag)
+    RunLoop.current.add(sampleTemperature, forMode: .temperature)
 
     // Fade the temperature display continuously:
     let temperatureDisplay = TemperatureOverTimeDisplay(leds: leds, ledCount: ledCount)
@@ -98,7 +98,6 @@ do {  // provide a scope for the ssh-availability guard
     RunLoop.current.add(displayFade, forMode: .fade)
 
     print("press RETURN to exit, or one of flag / temp / fade")
-    FileHandle.standardInput.readInBackgroundAndNotify() // FIXME: later: use the data
     var keepRunningInMode: RunLoop.Mode? = .temperature
 
     let _ = NotificationCenter.default
@@ -120,9 +119,9 @@ do {  // provide a scope for the ssh-availability guard
                             keepRunningInMode = .fade
                         default: break
                         }
-                        FileHandle.standardInput.readInBackgroundAndNotify()
     }
     while let mode = keepRunningInMode {
+        FileHandle.standardInput.readInBackgroundAndNotify(forModes: [.default, .fade, .flag, .temperature])
         RunLoop.current.run(mode: mode, before: Date.distantFuture)
     }
 
