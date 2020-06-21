@@ -20,6 +20,21 @@ public struct LEDColor {
         self.blue = blue
     }
 
+    /// Initialize from HSL color model.
+    ///
+    /// hue: angle in degrees  between 0 and 360. Red = 0; Green = 120; Blue = 240.
+    /// Algorithm from: https://en.wikipedia.org/wiki/HSL_and_HSV#HSL_to_RGB
+    public init(hue: Double, saturation: Double, lightness: Double) {
+        let a = saturation * min(lightness, 1 - lightness)
+        func k(_ n: Double) -> Double {
+            (n + hue / 30).truncatingRemainder(dividingBy: 12.0)
+        }
+        func f(_ n: Double) -> Double {
+            return lightness - a * max(-1, min(k(n) - 3, 9 - k(n), 1))
+        }
+        self.init(red: f(0), green: f(8), blue: f(4))
+    }
+
     public static func randomSaturated() -> LEDColor {
         let values = [Double.random(in: 0 ... 1.0), 1.0, 0.0,].shuffled()
         return LEDColor(values: values)
