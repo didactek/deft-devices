@@ -41,7 +41,7 @@ public class LinuxSPI: LinkSPI {
             throw SPIError.clockSetupFailure
         }
 
-        var speed: UInt32 = 30_500 // fairly low, corresponds to cdiv of 8192
+        var speed: UInt32 = UInt32(speedHz)
         let speedResult = ioctl(fileDescriptor, UInt(SPI_IOC_WR_MAX_SPEED_HZ), &speed);
         guard speedResult == 0 else {
             throw SPIError.speedSetupFailure
