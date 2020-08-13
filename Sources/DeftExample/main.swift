@@ -12,6 +12,13 @@ import Foundation
 import DeftBus
 import LEDUtils
 import LinuxSPI
+#if os(macOS)
+import FTDI
+extension FtdiSPI : LinkSPI {
+    // no work necessary
+}
+#endif
+
 
 // specific devices:
 import MCP9808
@@ -40,7 +47,7 @@ do {  // provide a scope for the ssh-availability guard
     let radioLink = try! I2CToolsLink(transport: pi, busID: 1, nodeAddress: TEA5767_Radio.defaultNodeAddress)
 
     let tempLink = try! I2CToolsLink(transport: pi, busID: 1, nodeAddress: MCP9808_TemperatureSensor.defaultNodeAddress)
-    let spi = try! LinuxSPI(busID: 0, speedHz: 30_500)  // FIXME: just a stub that may compile; not a functional local or remote link.
+    let spi = try! FtdiSPI(speedHz: 1_000_000)
     #else
     let radioLink = try! LinuxI2C(busID: 1, nodeAddress: TEA5767_Radio.defaultNodeAddress)
     let tempLink = try! LinuxI2C(busID: 1, nodeAddress: MCP9808_TemperatureSensor.defaultNodeAddress)

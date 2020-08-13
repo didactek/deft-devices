@@ -40,8 +40,9 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        // .package(url: /* package url */, from: "1.0.0"),
         .package(url: "https://github.com/didactek/deft-layout.git", from: "0.0.1"),
+        // For FTDI SPI support on Mac:
+        .package(url: "https://github.com/didactek/ftdi-synchronous-serial.git", from: "0.0.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -85,6 +86,6 @@ let package = Package(
 //            dependencies: ["DeftLayout", "DeftBus", "TEA5767"]),
         .target(
             name: "DeftExample",
-            dependencies: ["DeftBus", "DeftLayout", "LEDUtils", "LinuxI2C", "LinuxSPI", "MCP9808", "ShiftLED", "TEA5767"]),
+            dependencies: ["DeftBus", "DeftLayout", "LEDUtils", "LinuxI2C", "LinuxSPI", "MCP9808", "ShiftLED", "TEA5767", "FTDI"]),  // LibUSB for FTDI-SPI/Mac
     ]
 )
