@@ -54,6 +54,7 @@ func setupLinks() -> [LinkRequirement] {
 
     #if os(macOS)
     #if canImport(FTDI)
+    #if true  // can choose only one of I2C, SPI
     if let bus = try? FtdiI2C() {
         if let radioLink = try? FtdiI2CDevice(bus: bus, address: TEA5767_Radio.defaultNodeAddress) {
             connections.append(.radio(link: radioLink))
@@ -63,8 +64,10 @@ func setupLinks() -> [LinkRequirement] {
             connections.append(.thermometer(link: tempLink))
         }
     }
+    #else
     let spi = try! FtdiSPI(speedHz: 1_000_000)
     connections.append(.shiftLED(link: spi))
+    #endif
     #else
     // For I2C devices, try using ssh to bridge to remote interface:
     if #available(OSX 10.15, *) {
