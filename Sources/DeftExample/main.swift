@@ -24,7 +24,8 @@ import FTDI
 extension FtdiSPI : LinkSPI {
     // no work necessary
 }
-extension FtdiI2C : DataLink {
+extension FtdiI2CDevice : DataLink {
+
 }
 #endif
 
@@ -54,20 +55,16 @@ func setupLinks() -> [LinkRequirement] {
     #if os(macOS)
     #if canImport(FTDI)
     if let bus = try? FtdiI2C() {
-        if let radioLink = FtdiI2CDevice(address: TEA5767_Radio.defaultNodeAddress) {
+        if let radioLink = try? FtdiI2CDevice(bus: bus, address: TEA5767_Radio.defaultNodeAddress) {
             connections.append(.radio(link: radioLink))
         }
 
-        if let tempLink = try? I2CToolsLink(address: MCP9808_TemperatureSensor.defaultNodeAddress) {
-             connections.append(.thermometer(link: tempLink))
+        if let tempLink = try? FtdiI2CDevice(bus: bus, address: MCP9808_TemperatureSensor.defaultNodeAddress) {
+            connections.append(.thermometer(link: tempLink))
         }
     }
-    let pi = SSHTransport(destination: "pi@raspberrypi.local")
-
-    let radioLink = try! I2CToolsLink(transport: pi, busID: 1, nodeAddress: TEA5767_Radio.defaultNodeAddress)
-
-    let tempLink = try! I2CToolsLink(transport: pi, busID: 1, nodeAddress: MCP9808_TemperatureSensor.defaultNodeAddress)
     let spi = try! FtdiSPI(speedHz: 1_000_000)
+    connections.append(.shiftLED(link: spi))
     #else
     // For I2C devices, try using ssh to bridge to remote interface:
     if #available(OSX 10.15, *) {
