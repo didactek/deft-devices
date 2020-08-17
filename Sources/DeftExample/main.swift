@@ -65,8 +65,9 @@ func setupLinks() -> [LinkRequirement] {
         }
     }
     #else
-    let spi = try! FtdiSPI(speedHz: 1_000_000)
-    connections.append(.shiftLED(link: spi))
+    if let spi = try? FtdiSPI(speedHz: 1_000_000) {
+        connections.append(.shiftLED(link: spi))
+    }
     #endif
     #else
     // For I2C devices, try using ssh to bridge to remote interface:
