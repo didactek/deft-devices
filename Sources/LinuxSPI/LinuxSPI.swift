@@ -52,7 +52,7 @@ public class LinuxSPI: LinkSPI {
         close(fileDescriptor)
     }
 
-    public func write(data: Data, count: Int) {
+    public func write(data: Data) {
         var dataCopy = data
         dataCopy.withUnsafeMutableBytes { dataRaw in
             let addressAsInt = UInt(bitPattern: dataRaw.baseAddress)
