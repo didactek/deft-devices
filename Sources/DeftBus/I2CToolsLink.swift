@@ -32,12 +32,9 @@ public class I2CToolsLink: DataLink {
         self.transport = transport
     }
 
-    func transferWriteFragment(data: Data, count: Int) -> String {
-        assert(count >= 0)
-        assert(count <= data.count)
-
-        let hexFormattedBytes = data.prefix(count).map{ String(format: "0x%02x", $0) }.joined(separator: " ")
-        return "w\(count)@\(nodeAddress) \(hexFormattedBytes)"
+    func transferWriteFragment(data: Data) -> String {
+        let hexFormattedBytes = data.map{ String(format: "0x%02x", $0) }.joined(separator: " ")
+        return "w\(data.count)@\(nodeAddress) \(hexFormattedBytes)"
     }
 
     func transferPrologue() -> String {
@@ -67,8 +64,8 @@ public class I2CToolsLink: DataLink {
         }
     }
 
-    public func write(data: Data, count: Int) {
-        let command = transferPrologue() + " " + transferWriteFragment(data: data, count: count)
+    public func write(data: Data) {
+        let command = transferPrologue() + " " + transferWriteFragment(data: data)
         transport.send(command)
     }
 
@@ -78,9 +75,9 @@ public class I2CToolsLink: DataLink {
         readResults(data: &data, count: count)
     }
 
-    public func writeAndRead(sendFrom: Data, sendCount: Int, receiveInto: inout Data, receiveCount: Int) {
+    public func writeAndRead(sendFrom: Data, receiveInto: inout Data, receiveCount: Int) {
         let command = transferPrologue() + " " +
-            transferWriteFragment(data: sendFrom, count: sendCount) + " " +
+            transferWriteFragment(data: sendFrom) + " " +
             prepareReadFragment(data: &receiveInto, count: receiveCount)
         transport.send(command)
         readResults(data: &receiveInto, count: receiveCount)
