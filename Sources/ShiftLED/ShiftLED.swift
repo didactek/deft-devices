@@ -70,7 +70,7 @@ public class ShiftLED {
     }
 
     public func flushUpdates() {
-        bus.write(data: buffer, count: buffer.count)
+        bus.write(data: buffer)
     }
 
     public func all(color: LEDColor) {
