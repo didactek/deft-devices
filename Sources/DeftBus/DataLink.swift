@@ -19,7 +19,7 @@ import Foundation
 /// `BitStorageCore`-derived objects may assist in coding and decoding `Data` arguments.
 public protocol DataLink {
     /// Send count bytes to the devlce in a single message.
-    func write(data: Data, count: Int)
+    func write(data: Data)
 
     /// Read count bytes from the device in a single STOP-terminated message.
     ///
@@ -31,15 +31,10 @@ public protocol DataLink {
     /// Send and receive bytes in a single I2C conversation.
     ///
     /// Commonly used in patterns like reading from a named register.
-    func writeAndRead(sendFrom: Data, sendCount: Int, receiveInto: inout Data, receiveCount: Int)
+    func writeAndRead(sendFrom: Data, receiveInto: inout Data, receiveCount: Int)
 }
 
 public extension DataLink {
-    /// Send all the bytes in data to the device.
-    func write(data: Data) {
-        write(data: data, count: data.count)
-    }
-
     /// Replace the existing bytes in data with bytes read from the device.
     func read(data: inout Data) {
         read(data: &data, count: data.count)
@@ -51,7 +46,7 @@ public extension DataLink {
     ///
     /// Commonly used in patterns like reading from a named register.
     func writeAndRead(sendFrom: Data, receiveInto: inout Data) {
-          writeAndRead(sendFrom: sendFrom, sendCount: sendFrom.count, receiveInto: &receiveInto, receiveCount: receiveInto.count)
+          writeAndRead(sendFrom: sendFrom, receiveInto: &receiveInto, receiveCount: receiveInto.count)
       }
 
 }

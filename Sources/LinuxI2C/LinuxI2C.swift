@@ -59,7 +59,8 @@ public class LinuxI2C: DataLink {
         close(fileDescriptor)
     }
 
-    public func write(data: Data, count: Int) {
+    public func write(data: Data) {
+        let count = data.count
         let writtenCount = data.withUnsafeBytes() { ptr in
             systemWrite(fileDescriptor, ptr.baseAddress, count)
         }
@@ -73,7 +74,7 @@ public class LinuxI2C: DataLink {
         assert(receivedCount == count)
     }
 
-    public func writeAndRead(sendFrom: Data, sendCount: Int, receiveInto: inout Data, receiveCount: Int) {
+    public func writeAndRead(sendFrom: Data, receiveInto: inout Data, receiveCount: Int) {
         var sendCopy = sendFrom  // won't be written to, but ioctl signature allows writing, and having semantics dependent on flags makes this hard to prove. Use a copy so the compiler is rightfully happy about safety.
         sendCopy.withUnsafeMutableBytes { sendRaw in
             receiveInto.withUnsafeMutableBytes { recvRaw in
@@ -81,7 +82,7 @@ public class LinuxI2C: DataLink {
                 let sendMsg = i2c_msg(
                     addr: __u16(nodeAddress),
                     flags: __u16(0),   // write is the default (no flags set)
-                    len: __u16(sendCount),
+                    len: __u16(sendFrom.count),
                     buf: sendBuffer.baseAddress)
 
                 let recvBuffer = recvRaw.bindMemory(to: __u8.self)
