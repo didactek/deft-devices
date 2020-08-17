@@ -15,5 +15,5 @@ public protocol LinkSPI {
     ///
     /// With many hardware configuration, the driven device does not communicate back to the initiating device.
     /// No error checking is possible; all writes are assumed to succeed. Framing errors may be hard to diagnose.
-    func write(data: Data, count: Int)
+    func write(data: Data)
 }
