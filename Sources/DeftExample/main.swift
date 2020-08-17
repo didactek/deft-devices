@@ -24,6 +24,8 @@ import FTDI
 extension FtdiSPI : LinkSPI {
     // no work necessary
 }
+extension FtdiI2C : DataLink {
+}
 #endif
 
 
