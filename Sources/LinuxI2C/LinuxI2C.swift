@@ -28,7 +28,7 @@ import LinuxI2CDev
 /// This userland interface does not require any root/sudo permissions to use.
 ///
 /// Most of the interface is documented in the header files included from LinuxI2CDev/I2CUmbrella.h. For additional discussion, see https://www.kernel.org/doc/Documentation/i2c/dev-interface
-public class LinuxI2C: DataLink {
+public class LinuxI2C: LinkI2C {
     let fileDescriptor: Int32
     let nodeAddress: Int
 

@@ -10,7 +10,7 @@
 import Foundation
 
 /// A class that executes I2C operations using Linux i2c-tools package commands from a shell.
-public class I2CToolsLink: DataLink {
+public class I2CToolsLink: LinkI2C {
 
     let busID: Int
     let nodeAddress: Int
