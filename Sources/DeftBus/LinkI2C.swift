@@ -1,5 +1,5 @@
 //
-//  DataLink.swift
+//  LinkI2C.swift
 //  Deft -- DEvices from swiFT
 //
 //  Created by Kit Transue on 2020-05-04.
