@@ -16,9 +16,9 @@ import LEDUtils
 
 class ShiftLEDTests: XCTestCase {
     class MockSPI: LinkSPI {
-        var checkers = [ (data: Data, count: Int) -> Void ]()
+        var checkers = [ (data: Data) -> Void ]()
 
-        func expectWrite(checking: @escaping (_ data: Data, _ count: Int) -> Void) {
+        func expectWrite(checking: @escaping (_ data: Data) -> Void) {
             checkers.append(checking)
         }
 
@@ -26,10 +26,10 @@ class ShiftLEDTests: XCTestCase {
             XCTAssert(checkers.isEmpty, "expected number of writes made")
         }
 
-        func write(data: Data, count: Int) {
+        func write(data: Data) {
             assert(!checkers.isEmpty)
             let expectation = checkers.removeFirst()
-            expectation(data, count)
+            expectation(data)
         }
     }
 
@@ -45,7 +45,7 @@ class ShiftLEDTests: XCTestCase {
         let link = MockSPI()
         let leds = ShiftLED(bus: link, stringLength: 3)
 
-        link.expectWrite { data, count in
+        link.expectWrite { data in
            let firstFrame = data[4]
                 let frameStart = UInt8(0b1110_0000)
                 XCTAssertEqual(firstFrame & frameStart, frameStart, "first three current bits always high")
@@ -69,8 +69,8 @@ class ShiftLEDTests: XCTestCase {
         let link = MockSPI()
         let leds = ShiftLED(bus: link, stringLength: 3)
 
-        link.expectWrite { data, count in
-            XCTAssertEqual(count, 5 * 4, "should have prologue and epilogue")
+        link.expectWrite { data in
+            XCTAssertEqual(data.count, 5 * 4, "should have prologue and epilogue")
             XCTAssertEqual(data.prefix(upTo: 4), Data(repeating: 0, count: 4), "prefix of zeros")
             XCTAssertEqual(data.suffix(4), Data(repeating: 0xff, count: 4), "should end with block with all bits set")
         }
