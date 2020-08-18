@@ -41,27 +41,24 @@ public class I2CToolsLink: LinkI2C {
         return "/usr/sbin/i2ctransfer -y \(busID)"
     }
 
-    func prepareReadFragment(data: inout Data, count: Int) -> String {
+    func readCommand(count: Int) -> String {
         assert(count >= 0)
-        if (data.count < count) {
-            let shortfall = count - data.count
-            data.append(contentsOf: [UInt8](repeating: 0, count: shortfall))
-        }
         return "r\(count)@\(nodeAddress)"
     }
 
-    func readResults(data: inout Data, count: Int) {
+    func readResults(count: Int) -> Data {
+        var data = Data()
         var resultsText = transport.receive() // expected to be series of hex encoded bytes, e.g. "0xaf 0xca 0x3a 0x30"
         assert(resultsText.removeLast() == "\n")
         let hexEncoded = resultsText.split(separator: " ")
         assert(hexEncoded.count == count, "output \(resultsText) does not include expected \(count) items")
 
-        for i in 0 ..< count {
-            var hex = hexEncoded[i]
-            assert(hex.removeFirst() == "0")
-            assert(hex.removeFirst() == "x")
-            data[i] = UInt8(hex, radix: 16)!
+        for hex in hexEncoded {
+            assert(hex.count > 2)
+            assert(hex.prefix(2) == "0x")
+            data.append(UInt8(hex.dropFirst(2), radix: 16)!)
         }
+        return data
     }
 
     public func write(data: Data) {
@@ -69,17 +66,17 @@ public class I2CToolsLink: LinkI2C {
         transport.send(command)
     }
 
-    public func read(data: inout Data, count: Int) {
-        let command = transferPrologue() + " " + prepareReadFragment(data: &data, count: count)
+    public func read(count: Int) -> Data {
+        let command = transferPrologue() + " " + readCommand(count: count)
         transport.send(command)
-        readResults(data: &data, count: count)
+        return readResults(count: count)
     }
 
-    public func writeAndRead(sendFrom: Data, receiveInto: inout Data, receiveCount: Int) {
+    public func writeAndRead(sendFrom: Data, receiveCount: Int) -> Data {
         let command = transferPrologue() + " " +
             transferWriteFragment(data: sendFrom) + " " +
-            prepareReadFragment(data: &receiveInto, count: receiveCount)
+            readCommand(count: receiveCount)
         transport.send(command)
-        readResults(data: &receiveInto, count: receiveCount)
+        return readResults(count: receiveCount)
     }
 }

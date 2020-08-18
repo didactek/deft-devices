@@ -25,19 +25,19 @@ public protocol LinkI2C {
     ///
     /// Note: reads via this interface are strictly a pull from the device with no mechanism for the clocking node to issue a request first.
     /// Simple conversations are usually highly typical, with only one format for read actions.
-    func read(data: inout Data, count: Int)
+    func read(count: Int) -> Data
 
 
     /// Send and receive bytes in a single I2C conversation.
     ///
     /// Commonly used in patterns like reading from a named register.
-    func writeAndRead(sendFrom: Data, receiveInto: inout Data, receiveCount: Int)
+    func writeAndRead(sendFrom: Data, receiveCount: Int) -> Data
 }
 
 public extension LinkI2C {
     /// Replace the existing bytes in data with bytes read from the device.
     func read(data: inout Data) {
-        read(data: &data, count: data.count)
+        data = read(count: data.count)
     }
 
     /// Send all bytes in sendFrom, then replace existing bytes of receiveInto with a read--all in a single I2C conversation.
@@ -46,7 +46,8 @@ public extension LinkI2C {
     ///
     /// Commonly used in patterns like reading from a named register.
     func writeAndRead(sendFrom: Data, receiveInto: inout Data) {
-          writeAndRead(sendFrom: sendFrom, receiveInto: &receiveInto, receiveCount: receiveInto.count)
-      }
+        let count = receiveInto.count
+        receiveInto = writeAndRead(sendFrom: sendFrom, receiveCount: count)
+    }
 
 }
