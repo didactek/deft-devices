@@ -19,9 +19,9 @@ public class TEA5767_Radio: I2CTraits {
 
     var writeBuffer = TEA5767_WriteLayout()
     var readBuffer = TEA5767_ReadLayout()
-    let link: DataLink
+    let link: LinkI2C
 
-    public init(link: DataLink) {
+    public init(link: LinkI2C) {
         self.link = link
     }
 

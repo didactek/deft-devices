@@ -24,7 +24,7 @@ import FTDI
 extension FtdiSPI : LinkSPI {
     // no work necessary
 }
-extension FtdiI2CDevice : DataLink {
+extension FtdiI2CDevice : LinkI2C {
 
 }
 #endif
@@ -44,8 +44,8 @@ extension RunLoop.Mode {
 
 enum LinkRequirement {
     case shiftLED(link: LinkSPI)
-    case radio(link: DataLink)
-    case thermometer(link: DataLink)
+    case radio(link: LinkI2C)
+    case thermometer(link: LinkI2C)
 }
 
 

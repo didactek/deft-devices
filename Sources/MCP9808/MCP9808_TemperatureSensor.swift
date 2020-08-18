@@ -14,9 +14,9 @@ import DeftBus
 public class MCP9808_TemperatureSensor: I2CTraits {
     public static var defaultNodeAddress = 0x18  // base; three lower bits hardware-settable
 
-    let link: DataLink
+    let link: LinkI2C
 
-    public init(link: DataLink) {
+    public init(link: LinkI2C) {
         self.link = link
     }
 

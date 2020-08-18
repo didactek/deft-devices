@@ -17,7 +17,7 @@ import Foundation
 /// Each operation here finishes by terminating the conversation with a STOP.
 ///
 /// `BitStorageCore`-derived objects may assist in coding and decoding `Data` arguments.
-public protocol DataLink {
+public protocol LinkI2C {
     /// Send count bytes to the devlce in a single message.
     func write(data: Data)
 
@@ -34,7 +34,7 @@ public protocol DataLink {
     func writeAndRead(sendFrom: Data, receiveInto: inout Data, receiveCount: Int)
 }
 
-public extension DataLink {
+public extension LinkI2C {
     /// Replace the existing bytes in data with bytes read from the device.
     func read(data: inout Data) {
         read(data: &data, count: data.count)
