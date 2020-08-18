@@ -67,14 +67,17 @@ public class LinuxI2C: LinkI2C {
         assert(writtenCount == count)
     }
 
-    public func read(data: inout Data, count: Int) {
+    public func read(count: Int) -> Data {
+        var data = Data(repeating: 0, count: count)
         let receivedCount = data.withUnsafeMutableBytes() { ptr in
             systemRead(fileDescriptor, ptr.baseAddress, count)
         }
         assert(receivedCount == count)
+        return data
     }
 
-    public func writeAndRead(sendFrom: Data, receiveInto: inout Data, receiveCount: Int) {
+    public func writeAndRead(sendFrom: Data, receiveCount: Int) -> Data {
+        var receiveInto = Data(repeating: 0, count: receiveCount)
         var sendCopy = sendFrom  // won't be written to, but ioctl signature allows writing, and having semantics dependent on flags makes this hard to prove. Use a copy so the compiler is rightfully happy about safety.
         sendCopy.withUnsafeMutableBytes { sendRaw in
             receiveInto.withUnsafeMutableBytes { recvRaw in
@@ -100,6 +103,7 @@ public class LinuxI2C: LinkI2C {
                 }
             }
         }
+        return receiveInto
     }
 }
 #endif
