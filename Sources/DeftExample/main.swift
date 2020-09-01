@@ -21,11 +21,12 @@ import LinuxI2C
 #endif
 #if canImport(FTDI)
 import FTDI
+import LibUSB
 extension FtdiSPI : LinkSPI {
     // no work necessary
 }
 extension FtdiI2CDevice : LinkI2C {
-
+    // no work necessary
 }
 #endif
 
@@ -34,6 +35,7 @@ extension FtdiI2CDevice : LinkI2C {
 import MCP9808
 import ShiftLED
 import TEA5767  // 5.1 radio bug
+import PCA9685
 
 extension RunLoop.Mode {
     static let temperature = Self("displayTemperature")
@@ -46,30 +48,40 @@ enum LinkRequirement {
     case shiftLED(link: LinkSPI)
     case radio(link: LinkI2C)
     case thermometer(link: LinkI2C)
+    case servo(link: LinkI2C)
 }
 
 
 func setupLinks() -> [LinkRequirement] {
     var connections: [LinkRequirement] = []
 
-    #if os(macOS)
     #if canImport(FTDI)
-    #if true  // can choose only one of I2C, SPI
-    if let bus = try? FtdiI2C() {
-        if let radioLink = try? FtdiI2CDevice(bus: bus, nodeAddress: TEA5767_Radio.defaultNodeAddress) {
-            connections.append(.radio(link: radioLink))
-        }
+    let usbSubsystem = USBBus()
+    if let ftdiDevice = try? usbSubsystem
+        .findDevice(idVendor: Ftdi.defaultIdVendor,
+                    idProduct: Ftdi.defaultIdProduct) {
+        #if true  // can choose only one of I2C, SPI
+        if let bus = try? FtdiI2C(device: ftdiDevice) {
+            if let radioLink = try? FtdiI2CDevice(bus: bus, nodeAddress: TEA5767_Radio.defaultNodeAddress) {
+                connections.append(.radio(link: radioLink))
+            }
 
-        if let tempLink = try? FtdiI2CDevice(bus: bus, nodeAddress: MCP9808_TemperatureSensor.defaultNodeAddress) {
-            connections.append(.thermometer(link: tempLink))
+            if let tempLink = try? FtdiI2CDevice(bus: bus, nodeAddress: MCP9808_TemperatureSensor.defaultNodeAddress) {
+                connections.append(.thermometer(link: tempLink))
+            }
+
+            if let servoLink = try? FtdiI2CDevice(bus: bus, nodeAddress: PCA9685.allCallAddress) {
+                connections.append(.servo(link: servoLink))
+            }
         }
+        #else
+        if let spi = try? FtdiSPI(ftdiAdapter: ftdiDevice, speedHz: 1_000_000) {
+            connections.append(.shiftLED(link: spi))
+        }
+        #endif
     }
-    #else
-    if let spi = try? FtdiSPI(speedHz: 1_000_000) {
-        connections.append(.shiftLED(link: spi))
-    }
-    #endif
-    #else
+    #else  // no FTDI
+    #if os(macOS)  // Mac; no FTDI
     // For I2C devices, try using ssh to bridge to remote interface:
     if #available(OSX 10.15, *) {
         let pi = SSHTransport(destination: "pi@raspberrypi.local")
@@ -83,19 +95,7 @@ func setupLinks() -> [LinkRequirement] {
             connections.append(.thermometer(link: tempLink))
         }
     }
-    #endif
-
-    // For SPI, try an FTDI FT232H if the library has been included
-    #if canImport(FTDI)
-    if let spi = try? FtdiSPI(speedHz: 1_000_000) {
-        connections.append(.shiftLED(link: spi))
-    }
-    #endif
-    #endif
-
-
-
-    #if os(Linux)
+    #else  // Linux; no FTDI
     // 5.1 radio bug
     if let radioLink = try? LinuxI2C(busID: 1, nodeAddress: TEA5767_Radio.defaultNodeAddress) {
         connections.append(.radio(link: radioLink))
@@ -106,7 +106,9 @@ func setupLinks() -> [LinkRequirement] {
     if let spi = try? LinuxSPI(busID: 0, speedHz: 30_500) {
         connections.append(.shiftLED(link: spi))
     }
-    #endif
+    #endif //os(macOS)
+    #endif  //canImport(FTDI)
+
 
     return connections
 }
@@ -119,6 +121,7 @@ if #available(OSX 10.12, *) {  // FIXME: encode this in the Package requirements
     var radio: TEA5767_Radio? = nil
     var leds: ShiftLED? = nil
     var temp: MCP9808_TemperatureSensor? = nil
+    var servo: PCA9685? = nil
 
     let ledCount = 73
 
@@ -131,6 +134,8 @@ if #available(OSX 10.12, *) {  // FIXME: encode this in the Package requirements
             leds!.clear()  // in case the LEDs are already lit
         case .thermometer(let link):
             temp = MCP9808_TemperatureSensor(link: link)
+        case .servo(link: let link):
+            servo = PCA9685(link: link)
         }
     }
 
