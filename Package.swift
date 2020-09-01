@@ -41,8 +41,11 @@ let package = Package(
             name: "DeftExample",
             targets: ["DeftExample"]),
         .executable(
-            name: "SimpleExample",
-            targets: ["SimpleExample"]),
+            name: "SimpleI2CExample",
+            targets: ["SimpleI2CExample"]),
+        .executable(
+            name: "SimpleSPIExample",
+            targets: ["SimpleSPIExample"]),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -97,7 +100,10 @@ let package = Package(
             name: "DeftExample",
             dependencies: ["DeftBus", "DeftLayout", "LEDUtils", "LinuxI2C", "LinuxSPI", "MCP9808", "PCA9685", "ShiftLED", "TEA5767", "FTDI"]),  // LibUSB for FTDI-SPI/Mac
         .target(
-            name: "SimpleExample",
-            dependencies: ["DeftBus", "DeftLayout", "LEDUtils", "LinuxI2C", "LinuxSPI", "MCP9808", "PCA9685", "ShiftLED", "TEA5767", "FTDI"]),  // LibUSB for FTDI-SPI/Mac
+            name: "SimpleI2CExample",
+            dependencies: ["DeftBus", "DeftLayout", "LinuxI2C", "MCP9808", "PCA9685", "TEA5767", "FTDI"]),  // LibUSB for FTDI-SPI/Mac
+        .target(
+            name: "SimpleSPIExample",
+            dependencies: ["DeftBus", "DeftLayout", "LEDUtils", "LinuxSPI", "ShiftLED", "FTDI"]),  // LibUSB for FTDI-SPI/Mac
     ]
 )

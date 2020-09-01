@@ -35,6 +35,9 @@ public class PCA9685 {
         guard channel >= 0 && channel < Self.channelCount else {
             fatalError("channel \(channel) out of range")
         }
+        guard value >= 0 && value <= 1.0 else {
+            fatalError("value \(value) out of normalized range")
+        }
 
         let valueMax = UInt16((1 << 11) - 1) // 12-bits; (or 0...4095)
         let onDuration = UInt16(Double(valueMax) * value)
