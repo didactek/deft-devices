@@ -29,6 +29,9 @@ let package = Package(
             name: "MCP9808",
             targets: ["MCP9808"]),
         .library(
+            name: "PCA9685",
+            targets: ["PCA9685"]),
+        .library(
             name: "ShiftLED",
             targets: ["ShiftLED"]),
         .library(
@@ -37,12 +40,15 @@ let package = Package(
         .executable(
             name: "DeftExample",
             targets: ["DeftExample"]),
+        .executable(
+            name: "SimpleExample",
+            targets: ["SimpleExample"]),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/didactek/deft-layout.git", from: "0.0.1"),
         // For FTDI SPI support on Mac:
-        .package(url: "https://github.com/didactek/ftdi-synchronous-serial.git", from: "0.0.3"),
+        .package(url: "https://github.com/didactek/ftdi-synchronous-serial.git", from: "0.0.4"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -73,6 +79,9 @@ let package = Package(
             name: "MCP9808Tests",
             dependencies: ["DeftBus", "DeftLayout", "MCP9808"]),
         .target(
+            name: "PCA9685",
+            dependencies: ["DeftBus", "DeftLayout"]),
+        .target(
             name: "ShiftLED",
             dependencies: ["DeftBus", "LEDUtils"]),
         .testTarget(
@@ -86,6 +95,9 @@ let package = Package(
 //            dependencies: ["DeftLayout", "DeftBus", "TEA5767"]),
         .target(
             name: "DeftExample",
-            dependencies: ["DeftBus", "DeftLayout", "LEDUtils", "LinuxI2C", "LinuxSPI", "MCP9808", "ShiftLED", "TEA5767", "FTDI"]),  // LibUSB for FTDI-SPI/Mac
+            dependencies: ["DeftBus", "DeftLayout", "LEDUtils", "LinuxI2C", "LinuxSPI", "MCP9808", "PCA9685", "ShiftLED", "TEA5767", "FTDI"]),  // LibUSB for FTDI-SPI/Mac
+        .target(
+            name: "SimpleExample",
+            dependencies: ["DeftBus", "DeftLayout", "LEDUtils", "LinuxI2C", "LinuxSPI", "MCP9808", "PCA9685", "ShiftLED", "TEA5767", "FTDI"]),  // LibUSB for FTDI-SPI/Mac
     ]
 )
