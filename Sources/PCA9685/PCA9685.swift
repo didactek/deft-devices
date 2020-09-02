@@ -17,7 +17,9 @@ import DeftBus
 ///
 /// This board provides 16 PWM outputs with 12-bit resolution with configurable clock speed.
 public class PCA9685 {
-    public static let allCallAddress = 0b1110_000 // 7.1.1 Regular I2C-bus slave address
+    /// Base address; hardware jumpers offset from here.
+    public static let baseAddress = 0x40 // 7.1.1 Regular I2C-bus slave address
+    public static let allCallAddress = 0b1110_000  // 7.1.1 All Call address is reserved
     // supported: Fast Mode+.
 
     static let channelCount = 16
@@ -27,8 +29,11 @@ public class PCA9685 {
     public init(link: LinkI2C) {
         self.link = link
         // configure clock
-        // enable auto-increment (write: 0, AI)
-        link.write(data: Data([0, 0b0001_0000]))
+
+        let mode1 = Mode1()
+        mode1.autoincrement = true
+
+        link.write(data: Data([0]) + mode1.storage.bytes)
     }
 
     public func set(channel: Int, value: Double) {
@@ -52,4 +57,42 @@ public class PCA9685 {
 
         link.write(data: register + onBytes + offBytes)
     }
+}
+
+import DeftLayout
+
+class Mode1: ByteDescription {
+    // 7.3.1
+
+    /// Restart  mode; see section 7.3.1.1. for procedure to get out of restart.
+    @Position(bit: 7)
+    var restartState: Bool = false
+
+    /// Use external clock.
+    @Position(bit: 6)
+    var extclk: Bool = false
+
+    /// Auto-increment (AI) enabled.
+    @Position(bit: 5)
+    var autoincrement: Bool = false
+
+    /// Sleep: lower power mode; oscillator is off.
+    @Position(bit: 4)
+    var sleep: Bool = false
+
+    /// Sub1 group address enabled
+    @Position(bit: 3)
+    var sub1: Bool = false
+
+    /// Sub2 group address enabled
+    @Position(bit: 2)
+    var sub2: Bool = false
+
+    /// Sub3 group address enabled
+    @Position(bit: 1)
+    var sub3: Bool = false
+
+    /// All Call group address enabled
+    @Position(bit: 0)
+    var allCall: Bool = false
 }
