@@ -61,7 +61,7 @@ func setupLinks() -> [LinkRequirement] {
         .findDevice(idVendor: Ftdi.defaultIdVendor,
                     idProduct: Ftdi.defaultIdProduct) {
         #if true  // can choose only one of I2C, SPI
-        if let bus = try? FtdiI2C(device: ftdiDevice) {
+        if let bus = try? FtdiI2C(ftdiAdapter: ftdiDevice) {
             if let radioLink = try? FtdiI2CDevice(bus: bus, nodeAddress: TEA5767_Radio.defaultNodeAddress) {
                 connections.append(.radio(link: radioLink))
             }
