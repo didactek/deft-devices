@@ -10,27 +10,34 @@
 import Foundation
 import DeftBus
 
-// https://www.nxp.com/docs/en/data-sheet/PCA9685.pdf
-
 
 /// Manage a PCA9685 PWM LED/servo controller on an I2C bus.
 ///
 /// This board provides 16 PWM outputs with 12-bit resolution with configurable clock speed.
+/// - Note: [Datasheet](https://www.nxp.com/docs/en/data-sheet/PCA9685.pdf)
 public class PCA9685 {
     /// Base address; hardware jumpers offset from here.
-    public static let baseAddress = 0x40 // 7.1.1 Regular I2C-bus slave address
-    public static let allCallAddress = 0b1110_000  // 7.1.1 All Call address is reserved
+    ///
+    ///[Datasheet](https://www.nxp.com/docs/en/data-sheet/PCA9685.pdf) 7.1.1 Regular I2C-bus slave address.
+    public static let baseAddress = 0x40
+
+    /// Address that all drivers of this type will repspond to, if enabled.
+    ///
+    /// [Datasheet](https://www.nxp.com/docs/en/data-sheet/PCA9685.pdf) 7.1.1 All Call address is reserved.
+    public static let allCallAddress = 0b1110_000
+
+    /// The number of PWM outputs on the controller.
+    public static let channelCount = 16    // FIXME: this, along with set() should maybe be implemented as an array?
+
+
     // supported: Fast Mode+.
-
-    static let channelCount = 16
-
     let link: LinkI2C
 
     public init(link: LinkI2C) {
         self.link = link
         // configure clock
 
-        let mode1 = Mode1()
+        let mode1 = ModeRegister1()
         mode1.autoincrement = true
 
         link.write(data: Data([0]) + mode1.storage.bytes)
@@ -61,9 +68,12 @@ public class PCA9685 {
 
 import DeftLayout
 
-class Mode1: ByteDescription {
-    // 7.3.1
-
+/// Mode Register 1 (MODE1)
+///
+/// Controller configuration: wake state, I2C addresses, and register addressing behavior.
+///
+/// - Note: [Datasheet](https://www.nxp.com/docs/en/data-sheet/PCA9685.pdf) 7.3.1.
+class ModeRegister1: ByteDescription {
     /// Restart  mode; see section 7.3.1.1. for procedure to get out of restart.
     @Position(bit: 7)
     var restartState: Bool = false

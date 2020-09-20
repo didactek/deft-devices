@@ -128,6 +128,7 @@ of this implementation.
 
 - MCP9808 temperature sensor
 - TEA5767 FM tuner
+- PCA9685 16-channel PWM LED/servo controller
 
 
 ## Remote I2C access

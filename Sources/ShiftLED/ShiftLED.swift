@@ -27,9 +27,9 @@ public class ShiftLED {
     }
 
     func encode(color: LEDColor, current: Double) -> [UInt8] {
-        let r8 = UInt8(clamping: Int(color.red * 255))
-        let g8 = UInt8(clamping: Int(color.green * 255))
-        let b8 = UInt8(clamping: Int(color.blue * 255))
+        let r8 = UInt8(clamping: Int(color.red * Double(UInt8.max)))
+        let g8 = UInt8(clamping: Int(color.green * Double(UInt8.max)))
+        let b8 = UInt8(clamping: Int(color.blue * Double(UInt8.max)))
 
         let c5 = UInt8(current * 31)
         let c8 = c5 | 0b1110_0000
@@ -47,10 +47,12 @@ public class ShiftLED {
                         blue: Double(blue8) / Double(UInt8.max))
     }
 
-    /// Set the current used for the entire string as a fraction of full.
+    /// Set the curren /brigthness used for the entire string.
     ///
-    /// Will take effect at next udpate.
-    /// Note: it is one of only 32 levels, so is not useful for controlling fades.
+    /// - Parameter curreent: Fraction of full current (1.0).
+    ///
+    /// Will take effect at next update.
+    /// - Note: Current is one of only 32 levels, so is not useful for controlling fades.
     /// You probably want to set-and-forget.
     public func setCurrent(current: Double) {
         assert(current >= 0, "current must be positive")
@@ -81,6 +83,6 @@ public class ShiftLED {
     }
 
     public func clear() {
-        all(color: LEDColor(red: 0, green: 0, blue: 0))
+        all(color: .black)
     }
 }

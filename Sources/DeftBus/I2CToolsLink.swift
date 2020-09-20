@@ -20,9 +20,9 @@ public class I2CToolsLink: LinkI2C {
         case unsafeDeviceAddress  // potential system devices: RAM controllers and the like
     }
 
-    /// Parameter transport: Connection to shell to use to issue commands and read their output.
-    /// Parameter busID: the I2C bus to which the device is attached.
-    /// Parameter nodeAddress: the device address of the node. Only 7-bit addresses are supported.
+    /// - Parameter transport: Connection to shell to use to issue commands and read their output.
+    /// - Parameter busID: The I2C bus to which the device is attached.
+    /// - Parameter nodeAddress: The device address of the node. Only 7-bit addresses are supported.
     public init(transport: ShellTransport, busID: Int, nodeAddress: Int) throws {
         guard nodeAddress > 0x02 && nodeAddress < 0x78 else {
             throw RangeError.unsafeDeviceAddress
@@ -61,17 +61,20 @@ public class I2CToolsLink: LinkI2C {
         return data
     }
 
+    // Documented in LinkI2C protocol
     public func write(data: Data) {
         let command = transferPrologue() + " " + transferWriteFragment(data: data)
         transport.send(command)
     }
 
+    // Documented in LinkI2C protocol
     public func read(count: Int) -> Data {
         let command = transferPrologue() + " " + readCommand(count: count)
         transport.send(command)
         return readResults(count: count)
     }
 
+    // Documented in LinkI2C protocol
     public func writeAndRead(sendFrom: Data, receiveCount: Int) -> Data {
         let command = transferPrologue() + " " +
             transferWriteFragment(data: sendFrom) + " " +
