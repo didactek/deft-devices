@@ -16,6 +16,9 @@ import DeftLayout
 ///
 /// - Note: [Datasheet](https://www.nxp.com/docs/en/data-sheet/PCA9685.pdf) 7.3.1.
 class ModeRegister1: ByteDescription {
+    /// Register 'address'
+    static let address: UInt8 = 0
+
     /// Restart  mode; see section 7.3.1.1. for procedure to get out of restart.
     @Position(bit: 7)
     var restartState: Bool = false
