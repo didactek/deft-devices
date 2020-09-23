@@ -11,20 +11,27 @@ import Foundation
 
 /// A class that executes I2C operations using Linux i2c-tools package commands from a shell.
 public class I2CToolsLink: LinkI2C {
+    // Documented in LinkI2C protocol
+    public func supportsClockStretching() -> Bool {
+        return true
+    }
 
     let busID: Int
     let nodeAddress: Int
     let transport: ShellTransport
 
     enum RangeError: Error {
-        case unsafeDeviceAddress  // potential system devices: RAM controllers and the like
+        /// Address may be used by system devices--RAM controllers and the like--and may be
+        /// used to store system configuration. Changes here could make hardware inoperable.
+        /// Working in these areas is strongly discouraged.
+        case unsafeDeviceAddress
     }
 
     /// - Parameter transport: Connection to shell to use to issue commands and read their output.
     /// - Parameter busID: The I2C bus to which the device is attached.
     /// - Parameter nodeAddress: The device address of the node. Only 7-bit addresses are supported.
     public init(transport: ShellTransport, busID: Int, nodeAddress: Int) throws {
-        guard nodeAddress > 0x02 && nodeAddress < 0x78 else {
+        guard (0x03 ..< 0x78).contains(nodeAddress) else {
             throw RangeError.unsafeDeviceAddress
         }
         self.busID = busID

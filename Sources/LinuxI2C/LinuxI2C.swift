@@ -55,6 +55,10 @@ public class LinuxI2C: LinkI2C {
         }
     }
 
+    public func supportsClockStretching() -> Bool {
+        return true
+    }
+
     deinit {
         close(fileDescriptor)
     }

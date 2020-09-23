@@ -8,8 +8,10 @@
 //
 
 import Foundation
+import Logging
 import DeftBus
 
+private var logger = Logger(label: "com.didactek.Deft.PCA0685")
 
 /// Manage a PCA9685 PWM LED/servo controller on an I2C bus.
 ///
@@ -54,9 +56,14 @@ public class PCA9685 {
     let link: LinkI2C
 
     public init(link: LinkI2C) {
+        if !link.supportsClockStretching() {
+            // FIXME: what if link also exposed bus speed? We could make more useful
+            // recommendations and issue stronger diagnostics here:
+            logger.info("Bus does not support clock stretching (PCA9685 may stretch clock cycles)")
+        }
         self.link = link
 
-        setClock(frequency: 1000)
+        setPWMClock(frequency: 1000)
 
         let mode1 = ModeRegister1()
         mode1.autoincrement = true
@@ -72,7 +79,7 @@ public class PCA9685 {
     }
 
     /// Change the value of a register by transforming its current value.
-    func registerChange(address: UInt8, adjust usingTransform: (UInt8) -> UInt8) {
+    func asjustRegisterValue(address: UInt8, adjust usingTransform: (UInt8) -> UInt8) {
         let oldValue = link.writeAndRead(sendFrom: Data([address]), receiveCount: 1)[0]
 
         let newValue = usingTransform(oldValue)
@@ -85,7 +92,7 @@ public class PCA9685 {
     /// - Parameter frequency: desired fequency of PWM signal. Will clip to valid range  24...1526 Hz.
     ///
     /// See [Datasheet](https://www.nxp.com/docs/en/data-sheet/PCA9685.pdf) 7.3.5 PWM frequency PRE_SCALE
-    public func setClock(frequency hz: Int) {
+    public func setPWMClock(frequency hz: Int) {
         let builtinOscillator = 25_000_000
 
         let computedPrescale = builtinOscillator / (Self.clockDivisions * hz) - 1
@@ -120,7 +127,7 @@ public class PCA9685 {
         stopPWM()
         Thread.sleep(forTimeInterval: 0.05)
 
-        registerChange(address: ModeRegister1.address) {
+        asjustRegisterValue(address: ModeRegister1.address) {
             let register = ModeRegister1()
             register.storage.bytes[0] = $0
             register.sleep = true
@@ -130,7 +137,7 @@ public class PCA9685 {
     }
 
     func exitSleep() {
-        registerChange(address: ModeRegister1.address) {
+        asjustRegisterValue(address: ModeRegister1.address) {
             let register = ModeRegister1()
             register.storage.bytes[0] = $0
             register.sleep = false
