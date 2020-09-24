@@ -39,6 +39,7 @@ public class SSHTransport: ShellTransport {
         let _ = receivePipe.availableData
     }
 
+    // Documented in ShellTransport protocol
     public func send(_ command: String) {
         let terminatedCommand = command.appending("\n")
         commandPipe.write(terminatedCommand.data(using: .ascii)!)

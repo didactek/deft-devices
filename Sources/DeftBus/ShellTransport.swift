@@ -9,7 +9,10 @@
 
 import Foundation
 
+/// Protocol for executing a command-line processes using a [possibly-remote] shell and reading its output.
 public protocol ShellTransport {
+    /// Submit a command to the shell for parsing arguments and executing.
     func send(_ command: String)
+    /// Collect all the available command-line output.
     func receive() -> String
 }
