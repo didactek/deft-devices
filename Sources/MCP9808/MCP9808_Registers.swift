@@ -113,7 +113,7 @@ class MCP9808_TemperatureLimitRegister: WordDescription {
     // Alternatively, we could have read down to lsb 4 and ignored the
     // fractional part. Splitting them into decimal and fraction fields
     // is unwise because the fractional interpretation varies by the sign.
-    @Position(msb: 12, lsb: 2, .extendNegativeBit)
+    @Position(msb: 12, lsb: 2, extendNegativeBit: true)
     var temperatureQuarterCelsius: Int = 0
 }
 
@@ -137,7 +137,7 @@ class MCP9808_AmbientTemperatureRegister: WordDescription {
     var AmbientVsLower: LimitFlag = .withinLimit
 
 
-    @Position(msb: 12, lsb: 0, .extendNegativeBit)
+    @Position(msb: 12, lsb: 0, extendNegativeBit: true)
     var temperatureSixteenthCelsius: Int = 0
 }
 
