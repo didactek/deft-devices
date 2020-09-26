@@ -62,15 +62,15 @@ func setupLinks() -> [LinkRequirement] {
                     idProduct: Ftdi.defaultIdProduct) {
         #if true  // can choose only one of I2C, SPI
         if let bus = try? FtdiI2C(ftdiAdapter: ftdiDevice) {
-            if let radioLink = try? FtdiI2CDevice(bus: bus, nodeAddress: TEA5767_Radio.defaultNodeAddress) {
+            if let radioLink = try? FtdiI2CDevice(busHost: bus, nodeAddress: TEA5767_Radio.defaultNodeAddress) {
                 connections.append(.radio(link: radioLink))
             }
 
-            if let tempLink = try? FtdiI2CDevice(bus: bus, nodeAddress: MCP9808_TemperatureSensor.defaultNodeAddress) {
+            if let tempLink = try? FtdiI2CDevice(busHost: bus, nodeAddress: MCP9808_TemperatureSensor.defaultNodeAddress) {
                 connections.append(.thermometer(link: tempLink))
             }
 
-            if let servoLink = try? FtdiI2CDevice(bus: bus, nodeAddress: PCA9685.allCallAddress) {
+            if let servoLink = try? FtdiI2CDevice(busHost: bus, nodeAddress: PCA9685.allCallAddress) {
                 connections.append(.servo(link: servoLink))
             }
         }
