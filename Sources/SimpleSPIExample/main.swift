@@ -33,7 +33,8 @@ do {
     let ftdiDevice = try! usbSubsystem
         .findDevice(idVendor: Ftdi.defaultIdVendor,
                     idProduct: Ftdi.defaultIdProduct)
-    let spi = try! FtdiSPI(ftdiAdapter: ftdiDevice, speedHz: 1_000_000)
+    let spi = try! FtdiSPI(ftdiAdapter: ftdiDevice, speedHz: 30_000)
+    print("have SPI")
     #else
     let spi = try! LinuxSPI(busID: 0, speedHz: 30_500)
     #endif
