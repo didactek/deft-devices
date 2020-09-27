@@ -47,9 +47,9 @@ public class ShiftLED {
                         blue: Double(blue8) / Double(UInt8.max))
     }
 
-    /// Set the curren /brigthness used for the entire string.
+    /// Set the current/brigthness used for the entire string.
     ///
-    /// - Parameter curreent: Fraction of full current (1.0).
+    /// - Parameter current: Fraction of full current (0.0...1.0).
     ///
     /// Will take effect at next update.
     /// - Note: Current is one of only 32 levels, so is not useful for controlling fades.

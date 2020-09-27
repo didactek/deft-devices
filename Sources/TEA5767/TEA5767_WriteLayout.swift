@@ -11,19 +11,22 @@ import Foundation
 import DeftLayout
 
 
-// datasheet at https://www.voti.nl/docs/TEA5767.pdf
-
+/// Layout of the how the TEA5767 responds to an I2C write. The device is stateless: any write must be
+/// all 5 bytes long and will be interpreted in tihs format.
+///
+/// See [datasheet](https://www.voti.nl/docs/TEA5767.pdf) Section 8.4: Writng data.
+///
 class TEA5767_WriteLayout: ByteArrayDescription {
     // Datasheet p.14
 
     // BYTE 1
+
     @Position(ofByte: 1, bit: 7)
     var muted = false
 
     enum TuningMode: UInt8, BitEmbeddable {
         case search = 1
         case direct = 0
-        //        case preset  // documentation suggests presets, but is unclear on how they are set; and the computer probably is probably a nicer place to keep those anyway
     }
     @Position(ofByte: 1, bit: 6)
     var searchMode: TuningMode = .direct
