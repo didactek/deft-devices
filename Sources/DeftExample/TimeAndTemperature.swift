@@ -48,9 +48,7 @@ class TemperatureOverTimeDisplay {
         let hiValue = observations.max()!
         let indices = observations.map { (hiValue == lowValue) ? 0 : Int( Double(valueResolution - 1) * ($0 - lowValue) / (hiValue - lowValue)) }
 
-        for (index, observation) in indices.enumerated() {
-            leds[index] = colorEncoding[observation]
-        }
+        leds.replace(startingAt: 0, with: indices.map {colorEncoding[$0]})
         leds.flushUpdates()
     }
 }

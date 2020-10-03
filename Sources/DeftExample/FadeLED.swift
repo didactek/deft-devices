@@ -47,13 +47,11 @@ class TwoSegmentFade {
 
 
         let fadeLeft = left.fade(to: middle, count: ledCount / 2)
-        for (index, value) in fadeLeft.enumerated() {
-            leds[index] = value
-        }
+        leds.replace(startingAt: 0, with: fadeLeft)
+
         let fadeRight = middle.fade(to: right, count: ledCount / 2)
-        for (index, value) in fadeRight.enumerated() {
-            leds[index + ledCount / 2] = value
-        }
+        leds.replace(startingAt: ledCount / 2, with: fadeRight)
+
         leds.flushUpdates()
     }
 }

@@ -12,8 +12,12 @@ import Foundation
 import DeftBus
 import LEDUtils
 
-public class ShiftLED {
-    let count: Int
+public class ShiftLED: MutableCollection {
+    public func index(after i: Int) -> Int { i + 1 }
+    public var startIndex: Int { 0 }
+    public var endIndex: Int { count }
+    public let count: Int
+
     let bus: LinkSPI
     var buffer: Data
     var current: Double
@@ -68,6 +72,19 @@ public class ShiftLED {
         set {
             assert((0 ..< count).contains(index), "range error")
             buffer.replaceSubrange( ((index + 1) * 4) ..< ((index + 2) * 4), with: encode(color: newValue, current: current))
+        }
+    }
+
+    /// Replace a block of values starting at a given offset.
+    ///
+    /// - Note: Something like this seems like it should come with being a MutableCollection. FIXME: review.
+    public func replace<C: Collection>(startingAt: Index, with replacement: C) where C.Element == Element {
+        for (index, value) in replacement.enumerated() {
+            let insertionPoint = startingAt + index
+            guard insertionPoint < count else {
+                break
+            }
+            self[insertionPoint] = value
         }
     }
 
