@@ -7,16 +7,41 @@
 //  SPDX-License-Identifier: Apache-2.0
 //
 
-#if true
+#if !os(macOS) // **For the whole file** (Use 'true' if using stubs below to use macOS to check compilation only.)
+
 import Foundation
 #if !os(macOS)
 import Glibc
 let systemWrite = SwiftGlibc.write
 let systemRead = SwiftGlibc.read
 #else
+// macOS only for compile-time checks:
 import Darwin
 let systemWrite = Darwin.write
 let systemRead = Darwin.read
+// stubs of ioctl pieces. Can add something like this in the macOS section of I2CUmbrella.h...
+//   #include "linux-stubs/include/linux/types.h"
+//   #include "linux-stubs/include/linux/i2c.h"
+//   #include "linux-stubs/include/linux/i2c-dev.h"
+// ... or provide equivalent dummy definitions here:
+#if false // these are stubs and won't work, but can be enabled for checking compile:
+let I2C_SLAVE = 44
+let I2C_M_RD = 1
+let I2C_RDWR = 3
+typealias __u32 = UInt32
+typealias __u16 = UInt16
+typealias __u8 = UInt8
+struct i2c_msg {
+    var addr: __u16
+    var flags: __u16
+    var len: __u16
+    var buf: UnsafePointer<__u8>?
+}
+struct i2c_rdwr_ioctl_data {
+    var msgs: UnsafePointer<i2c_msg>?
+    var nmsgs: __u32
+}
+#endif // stubs
 #endif
 
 
