@@ -11,6 +11,7 @@ import Foundation
 
 
 extension LEDColor {
+    /// Return a set of colors that evenly move from this color to the target.
     public func fade(to: LEDColor, count: Int) -> [LEDColor] {
         let start = self.values()
         let goal = to.values()

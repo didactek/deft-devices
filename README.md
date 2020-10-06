@@ -6,7 +6,7 @@ DEvices from swiFT
 A collection of modules for connecting small hardware to computers using the Swift programming language.
 
 
-Goals:
+## Goals
 - provide a framework for connecting small hardware
 - maximize use and call-site readability
 - encourage discovery
@@ -16,10 +16,30 @@ Goals:
 - support development on Mac and Raspberry Pi devices
 
 
-Features:
+## Features
 
-Uses the DeftLayout library to bridge bit descriptions that are very close the device datasheets on the one side,
-and then idiomatic Swift on the other. This mapping minimizes the need to use the raw bit operations, hardcoded masks, and other "magic" constants that many alternate implementations employ.
+### DeftLayout
+
+DeftLayout is a framework for mapping values of Swift data types to the bit-level positions
+used in device protocols. It performs the role of functions like pack/unpack in Ruby or Python, or of
+bitwise boolean operations, bitfields, and unions in C.
+
+The DeftLayout pattern tries to minimize the need for raw bit operations, hardcoded masks, and 
+other "magic" constants. Its @Position wrappers aspire to adopt positional notation used in 
+device datasheets.
+
+
+### DeftBus
+
+DeftBus defines protocols for communicating with devices over SPI and I2C.
+
+DeftBus provides implementations of these protocols for using the native Linux SPI and native
+Linux I2C interfaces.
+
+DeftBus provides an ssh transport that can use command line tools on a remote machine
+to perform I2C or SPI operations. Developers can compile and run code on a fast machine
+(e.g.: a Mac running Xcode) while still exercising hardware connected to a smaller microcomputer
+(e.g.: a Raspberry Pi Zero).
 
 
 ## Installation
@@ -32,7 +52,9 @@ On the Raspberry Pi:
 1. Clone this repository
 
 
-It is possible to work with the codebase using Xcode on a Mac. Xcode provides fast compilation, sophisticated code completion, and built-in documentation support. Xcode should identify the directory structure as belonging to a Swift Pacakge and be able to compile and run.
+It is possible to work with the codebase using Xcode on a Mac. Xcode provides fast compilation,
+sophisticated code completion, and built-in documentation support. Xcode should identify the
+directory structure as belonging to a Swift Package and be able to compile and run.
 
 
 ## Usage
@@ -50,19 +72,24 @@ The tests do not assume any hardware, but use mock objects and data to test the 
 
 The underlying encoded bytes of the message are represented by an AssembledMessage.
 
-The DeftLayout module provides support for mapping particular bits in AssembledMessage Data to properties in a message object.
+The DeftLayout module provides support for mapping particular bits in AssembledMessage
+Data to properties in a message object.
 
 
 Typical hierarchy for a mapping class:
 
-BitStorageCore  // manages the AssembledMessage
-[ByteArray]Description // provides @Position wrappers that "make sense" for the representation
-[UserClass]Layout // uses @Position wrappers to add properties of the message
+  BitStorageCore  // manages the AssembledMessage
+
+  [ByteArray]Description // provides @Position wrappers that "make sense" for the representation
+
+  [UserClass]Layout // uses @Position wrappers to add properties of the message
 
 
 #### Example: a packed, 5-byte message
 
-The TEA5767 radio tuner has only one command, consisting of a write of 5 bytes. Its datasheet describes the bytes by byte index and bits within the 8-bit byte. The ByteArrayDescription best supports this longer  array with byte-oriented descriptions.
+The TEA5767 radio tuner has only one command, consisting of a write of 5 bytes. Its datasheet
+describes the bytes by byte index and bits within the 8-bit byte. The ByteArrayDescription best
+supports this longer  array with byte-oriented descriptions.
 
     class TEA5767_WriteLayout: ByteArrayDescription {
         enum SearchStopLevel: UInt8, BitEmbeddable {
@@ -77,7 +104,10 @@ The TEA5767 radio tuner has only one command, consisting of a write of 5 bytes. 
 
 #### Example: a 2-byte message as a big-endian word
 
-The MCP9808 defines a number of different 1- or 2-byte messages. The 2-byte messages are documented in the datasheet as big-endian words. The WordDescription @Position wrappers idiomatically handle positioning bits between 0 and 15 and encode them to bytes with the expected endian-ness:
+The MCP9808 defines a number of different 1- or 2-byte messages. The 2-byte messages are
+documented in the datasheet as big-endian words. The WordDescription @Position wrappers 
+idiomatically handle positioning bits between 0 and 15 and encode them to bytes with the
+expected endian-ness:
 
     class MCP9808_AmbientTemperatureRegister: WordDescription {
         enum LimitFlag: UInt8, BitEmbeddable {
@@ -92,36 +122,39 @@ The MCP9808 defines a number of different 1- or 2-byte messages. The 2-byte mess
         var temperatureSixteenthCelsius: Int = 0
     }
 
-Because WordDescription describes precisely two bytes (or one word), its @Position structs do not offer byte or word index/offset.
+Because WordDescription describes precisely two bytes (or one word), its @Position structs
+do not offer byte or word index/offset.
 
 ### Using Message Layouts
 
-For messages to send, set the properties to the desired values using your layout class, then get the assembled bytes via the `storage` property via the base class and send to the device.
+For messages to send, set the properties of your layout class to the desired values, then use
+the assembled bytes via the `storage` property in the base class to the message to the device.
 
-For messages to read, populate the underlying AssembledMessage `storage` with bytes from the device, then read the properties via the layout class.
+To read a message, populate the underlying AssembledMessage `storage` with bytes from the
+device, then access the properties via the layout class.
 
 ### Reading/writing data
 
-Objects typically keep a reference to a DataLink object to use to exchange bytes with the device.
+Objects typically keep a reference to a DeftBus Link object (I2C or SPI) to use to exchange
+bytes with the device.
 
-LinuxI2C and SSHTransport are alternate providers of DataLink services.
+LinuxI2C and I2CToolsLink are options for provider of LinkI2C services.
+
+Links can be mocked for testing.
 
 ### Present a consumer-friendly abstraction of the device
 
-This is a suggested pattern.
+The user of the device class should pass its bus communication method into the object
+during intialization. This [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) 
+design pattern makes it easier to test with mock bus links, and makes it easier to use different
+links in the future.
 
-Get a DataLink object during initialization. Receiving a DataLink that is already configured with I2C bus ID and address makes it easier for consumers to choose their transport method.
+For an I2C device, your new class may adopt the `I2CTraits`  protocol, which setup code can
+use to find the defaults for devices of this type (bus address, speed, etc.).
 
-If you want, your new class may adopt the `I2CTraits` protocol, which can be used to set up the DataLink with a default address.
-
-Provide a natural interface to the device. The implementation can communicate to the device using its DataLink,
-using messages transcoded using its Layout classes. The public interface to the device may choose to hide the details
-of this implementation.
-
-
-## Implementation
-
-@Position wrappers adopt the CoderAdapter protocol, which requires they provide and set up a ByteCoder that it wires to the AssembledMessage storage.
+Provide a natural interface to the device. The implementation can communicate to the device
+using its bus link, using messages transcoded using its Layout classes. The public interface to 
+the device may choose to hide the details of this implementation.
 
 
 ## Sample Device Support
@@ -129,11 +162,14 @@ of this implementation.
 - MCP9808 temperature sensor
 - TEA5767 FM tuner
 - PCA9685 16-channel PWM LED/servo controller
+- NormandLED SK9822, a shift-addressable string of RGB LEDs using SPI
 
 
 ## Remote I2C access
 
-SSHTransport lets the library sent I2C commands to i2c-tools (specifically: i2ctransfer) over an ssh session. This allows all the Swift code be be developed/run on a large computer while talking to devices connected to the I2C bus on a Raspberry Pi.
+SSHTransport lets the library sent I2C commands to i2c-tools (specifically: i2ctransfer) over an
+ssh session. This allows all the Swift code be be developed/run on a large computer while
+talking to devices connected to the I2C bus on a Raspberry Pi.
 
 
 ## Issues
@@ -145,3 +181,10 @@ This appears fixed in 5.2, but Swift binaries are not yet available for the RPi.
 
 There is a "swift-5.1" branch that pares down the sample application to a single BitStorageCore
 subclass, and thus avoids this problem for demonstration purposes.
+
+
+## Resources
+
+The open-source [sigrok PulseView](https://sigrok.org/wiki/PulseView) with a low-cost USB
+logic analyzer makes a very effective and very low-cost system for viewing and decoding bus
+operations. Highly recommended.

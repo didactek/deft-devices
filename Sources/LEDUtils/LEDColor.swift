@@ -9,11 +9,15 @@
 
 import Foundation
 
+/// Model a color as a set of RGB values, each (0.0...1.0).
 public struct LEDColor {
     public let red: Double
     public let green: Double
     public let blue: Double
 
+    /// - Parameter red: red value, (0.0...1.0)
+    /// - Parameter green: green value, (0.0...1.0)
+    /// - Parameter blue: blue value, (0.0...1.0)
     public init(red: Double, green: Double, blue: Double) {
         self.red = red
         self.green = green
@@ -22,8 +26,11 @@ public struct LEDColor {
 
     /// Initialize from HSL color model.
     ///
-    /// hue: angle in degrees  between 0 and 360. Red = 0; Green = 120; Blue = 240.
-    /// Algorithm from: https://en.wikipedia.org/wiki/HSL_and_HSV#HSL_to_RGB
+    /// - Parameter hue: Angle in degrees  between 0 and 360. Red = 0; Green = 120; Blue = 240.
+    /// - Parameter saturation: Saturation (0.0...1.0).
+    /// - Parameter lightness: Lightness, between 0.0 (black) and 1.0 (full brightness).
+    ///
+    /// Algorithm from: [Wikipedia HSL and HSV](https://en.wikipedia.org/wiki/HSL_and_HSV#HSL_to_RGB)
     public init(hue: Double, saturation: Double, lightness: Double) {
         let a = saturation * min(lightness, 1 - lightness)
         func k(_ n: Double) -> Double {
@@ -35,6 +42,7 @@ public struct LEDColor {
         self.init(red: f(0), green: f(8), blue: f(4))
     }
 
+    /// Factory pattern that returns a random but fully-staturated color.
     public static func randomSaturated() -> LEDColor {
         let values = [Double.random(in: 0 ... 1.0), 1.0, 0.0,].shuffled()
         return LEDColor(values: values)

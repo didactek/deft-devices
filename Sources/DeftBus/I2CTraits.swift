@@ -11,7 +11,7 @@ import Foundation
 
 /// Information about how a device uses an I2C bus.
 ///
-/// Devices do not need to implement this protocol to be used with a `DataLink`, but by implementing
+/// Devices do not need to implement this protocol to be used with a `LinkI2C`, but by implementing
 /// this protocol, they agree to provide static information that can be useful in establishing the transport on
 /// the bus.
 ///
@@ -21,6 +21,6 @@ public protocol I2CTraits {
     /// The factory-provided default node address for nodes of this type.
     ///
     /// Note that some chips provide means to change their default address via jumpers or programmable configuration.
-    /// Different addresses may be used when establishing the communications `DataLink`.
+    /// Different addresses may be used when establishing the communications `LinkI2C`.
     static var defaultNodeAddress: Int { get }
 }

@@ -48,11 +48,12 @@ struct i2c_rdwr_ioctl_data {
 import DeftBus
 import LinuxI2CDev
 
-/// An implementation of `DataLink` (I2C) using Linux's userland /dev/i2c-* interface.
+/// An implementation of `LinkI2C` (I2C) using Linux's userland /dev/i2c-* interface.
 ///
 /// This userland interface does not require any root/sudo permissions to use.
 ///
-/// Most of the interface is documented in the header files included from LinuxI2CDev/I2CUmbrella.h. For additional discussion, see https://www.kernel.org/doc/Documentation/i2c/dev-interface
+/// Most of the interface is documented in the header files included from LinuxI2CDev/I2CUmbrella.h.
+/// See [kernel.org I2C dev interface](https://www.kernel.org/doc/Documentation/i2c/dev-interface)
 public class LinuxI2C: LinkI2C {
     let fileDescriptor: Int32
     let nodeAddress: Int
@@ -69,7 +70,7 @@ public class LinuxI2C: LinkI2C {
         }
         self.nodeAddress = nodeAddress
 
-        fileDescriptor = open("/dev/i2c-\(busID)", O_RDWR)
+        fileDescriptor = open("/dev/i2c-\(busID)", O_RDWR) // released in deinit
         guard fileDescriptor >= 0 else {
             throw I2CError.descriptorNotFound
         }
@@ -80,14 +81,16 @@ public class LinuxI2C: LinkI2C {
         }
     }
 
-    public func supportsClockStretching() -> Bool {
-        return true
-    }
-
     deinit {
         close(fileDescriptor)
     }
 
+    // Documented in protocol
+    public func supportsClockStretching() -> Bool {
+        return true
+    }
+
+    // Documented in protocol
     public func write(data: Data) {
         let count = data.count
         let writtenCount = data.withUnsafeBytes() { ptr in
@@ -96,6 +99,7 @@ public class LinuxI2C: LinkI2C {
         assert(writtenCount == count)
     }
 
+    // Documented in protocol
     public func read(count: Int) -> Data {
         var data = Data(repeating: 0, count: count)
         let receivedCount = data.withUnsafeMutableBytes() { ptr in
@@ -105,6 +109,7 @@ public class LinuxI2C: LinkI2C {
         return data
     }
 
+    // Documented in protocol
     public func writeAndRead(sendFrom: Data, receiveCount: Int) -> Data {
         var receiveInto = Data(repeating: 0, count: receiveCount)
         var sendCopy = sendFrom  // won't be written to, but ioctl signature allows writing, and having semantics dependent on flags makes this hard to prove. Use a copy so the compiler is rightfully happy about safety.

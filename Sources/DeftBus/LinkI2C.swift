@@ -18,10 +18,17 @@ import Foundation
 ///
 /// `BitStorageCore`-derived objects may assist in coding and decoding `Data` arguments.
 public protocol LinkI2C {
-    /// Send count bytes to the devlce in a single message.
+    /// Send  bytes to the devlce in a single message.
+    ///
+    /// - Parameter data: The body of the message.
+    ///
+    /// - Note: The control byte is added by the transport; it should not be part of `data`.
+    /// - Note: This terminates the conversation with a STOP.
     func write(data: Data)
 
-    /// Read count bytes from the device in a single STOP-terminated message.
+    /// Read from the device in a single STOP-terminated conversation.
+    ///
+    /// - Parameter count: number of bytes to read from the device.
     ///
     /// - Note: Reads via this interface are strictly a pull from the device with no mechanism for the clocking node to issue a request first.
     /// Simple conversations are usually highly typical, with only one format for read actions.
@@ -55,6 +62,8 @@ public protocol LinkI2C {
 
 public extension LinkI2C {
     /// Replace the existing bytes in data with bytes read from the device.
+    ///
+    /// - Parameter data: Ezisting bytes that should be replaced with new data from the device.
     func read(data: inout Data) {
         data = read(count: data.count)
     }

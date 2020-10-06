@@ -52,6 +52,7 @@ public class LinuxSPI: LinkSPI {
         close(fileDescriptor)
     }
 
+    // Documented in protocol
     public func write(data: Data) {
         var dataCopy = data
         dataCopy.withUnsafeMutableBytes { dataRaw in
