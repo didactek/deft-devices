@@ -17,20 +17,35 @@ import DeftLayout
 // other minor details. Diagrams are preferred in these conflicts.)
 
 
+/// Identify the subject register of a conversation.
+///
+/// The MCP9808 adopts a request//followup pattern, where the conversation always starts with a write
+/// of the command byte described here, followed by a read or write of one or two bytes, depending on the
+/// register referenced by this command byte.
+///
+/// [datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/25095A.pdf) REGISTER 5-1
 class MCP9808_PointerRegister: ByteDescription {
-    // REGISTER 5-1
-
     // Datasheet p.16
     enum RegisterPointer: UInt8, BitEmbeddable {
         // case reserved = 0b0000  // RFU, Reserved for Future Use (Read-Only register)
-        case configuration = 0b0001  // Configuration register (CONFIG)
-        case alertUpper = 0b0010  // Alert Temperature Upper Boundary Trip register (TUPPER)
-        case alertLower = 0b0011  // Alert Temperature Lower Boundary Trip register (TLOWER)
-        case critical = 0b0100  // Critical Temperature Trip register (TCRIT)
-        case temperature = 0b0101  // Temperature register (TA)
-        case manufacturerID = 0b0110  // Manufacturer ID register
-        case deviceID = 0b0111  // Device ID/Revision register
-        case resolution = 0b1000  // Resolution register
+
+        /// Configuration register (CONFIG)
+        case configuration = 0b0001
+        /// Alert Temperature Upper Boundary Trip register (TUPPER)
+        case alertUpper = 0b0010
+        /// Alert Temperature Lower Boundary Trip register (TLOWER)
+        case alertLower = 0b0011
+        /// Critical Temperature Trip register (TCRIT)
+        case critical = 0b0100
+        /// Temperature register (TA)
+        case temperature = 0b0101
+        /// Manufacturer ID register
+        case manufacturerID = 0b0110
+        /// Device ID/Revision register
+        case deviceID = 0b0111
+        /// Resolution register
+        case resolution = 0b1000
+
         // case reserved = 0b1xxx  // Reserved(1)
     }
     @Position(msb: 4, lsb: 0)
@@ -38,8 +53,10 @@ class MCP9808_PointerRegister: ByteDescription {
 }
 
 
+/// Sensor configuration (read/write register).
+///
+/// [datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/25095A.pdf) REGISTER 5-2
 class MCP9808_ConfigRegister: WordDescription {
-    // REGISTER 5-2
     // Datasheet p.18
     enum LimitHysteresis: UInt8, BitEmbeddable {
         case C0 = 0b00
@@ -70,6 +87,7 @@ class MCP9808_ConfigRegister: WordDescription {
     @Position(bit: 5)
     var intClear: InterruptClear = .noEffect
 
+    /// - Note: Documented as "read-only"; presumably value is ignored when setting a configuration.
     @Position(bit: 4)
     var alertOutputStatus = false
 
@@ -103,8 +121,10 @@ class MCP9808_ConfigRegister: WordDescription {
 }
 
 
+/// Temperature limit register (read/write). Used for alertUpper, alertLower, and critical registers.
+///
+/// [datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/25095A.pdf) REGISTER 5-3
 class MCP9808_TemperatureLimitRegister: WordDescription {
-    // REGISTER 5-3
     // Datasheet p.22
 
     // FIXME: this is a fixed-point fractional with two bits. @Position
@@ -117,9 +137,10 @@ class MCP9808_TemperatureLimitRegister: WordDescription {
     var temperatureQuarterCelsius: Int = 0
 }
 
-
+/// Current sensor readings: (temperature and alarm states). IRead-only.)
+///
+/// [datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/25095A.pdf) REGISTER 5-4
 class MCP9808_AmbientTemperatureRegister: WordDescription {
-    // REGISTER 5-4
     // Datasheet p.24
 
     enum LimitFlag: UInt8, BitEmbeddable {
@@ -142,16 +163,19 @@ class MCP9808_AmbientTemperatureRegister: WordDescription {
 }
 
 
+/// Manufacturer ID (read-only).
+///
+/// [datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/25095A.pdf) REGISTER 5-5
 class MCP9808_ManufacturerIDRegister: WordDescription {
-    // REGISTER 5-5
     // Datasheet p.27
     @Position(msb: 15, lsb: 0)
     var manufacturerID: Int = 0x0054 // expected
 }
 
-
+/// Device version (read-only).
+///
+/// [datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/25095A.pdf) REGISTER 5-6
 class MCP9808_DeviceIDandRevisionRegister: WordDescription {
-    // REGISTER 5-6
     // Datasheet p.28
 
     @Position(msb: 15, lsb: 8)
@@ -161,16 +185,21 @@ class MCP9808_DeviceIDandRevisionRegister: WordDescription {
     var revision: Int = 0
 }
 
-
+/// Conversion resolution (read/write).
+///
+/// [datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/25095A.pdf) REGISTER 5-7
 class MCP9808_ResolutionRegister: ByteDescription {
-    // REGISTER 5-7
     // Datasheet p.29
 
     enum Resolution: UInt8, BitEmbeddable {
-        case c0_5    = 0b00  // +0.5°C (tCONV = 30 ms typical)
-        case c0_25   = 0b01  // +0.25°C (tCONV = 65 ms typical)
-        case c0_125  = 0b10  // +0.125°C (tCONV = 130 ms typical)
-        case c0_0625 = 0b11  // +0.0625°C (power-up default, tCONV = 250 ms typical)
+        /// +0.5°C (tCONV = 30 ms typical)
+        case c0_5    = 0b00
+        /// +0.25°C (tCONV = 65 ms typical)
+        case c0_25   = 0b01
+        /// +0.125°C (tCONV = 130 ms typical)
+        case c0_125  = 0b10
+        /// +0.0625°C (power-up default, tCONV = 250 ms typical)
+        case c0_0625 = 0b11
     }
 
     @Position(msb: 1, lsb: 0)

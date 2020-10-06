@@ -21,9 +21,12 @@ public class MCP9808_TemperatureSensor: I2CTraits {
     }
 
     /// Read the current temperature in degrees Celsius.
-    ///
-    /// Foundation provides a UnitTemperature that could have been returned instead. It has the great advantage that it values include their units, which would be more self-documenting. But for units that don't start at zero (Celsius and Farenheit, unlike Kelvin), differences are encoded from nominally zero which makes for lots of bugs. Surprisingly, a unit-less Double seems safer.
     public var temperature: Double { get {
+        // Foundation provides a UnitTemperature that could have been returned instead.
+        // It has the great advantage that it values include their units, which would
+        // be more self-documenting. But for units that don't start at zero (Celsius
+        // and Farenheit, unlike Kelvin), differences are encoded from nominally
+        // zero which makes for lots of bugs. Surprisingly, a unit-less Double seems safer.
         let command = MCP9808_PointerRegister()
         command.command = .temperature
 
