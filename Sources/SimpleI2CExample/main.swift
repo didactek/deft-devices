@@ -41,18 +41,26 @@ do {
     let servos = PCA9685(link: i2c)
 
     let swingTime = 1.5
-    #if true  // VERY IMPORTANT: FIGURE SERVO LIMITS FIRST TO AVOID SERVO DAMAGE
-    servos.set(channel: 15, value: 0.3)
-    Thread.sleep(until: Date(timeIntervalSinceNow: swingTime))
-    servos.set(channel: 15, value: 0.5)
-    Thread.sleep(until: Date(timeIntervalSinceNow: swingTime))
-    servos.set(channel: 15, value: 0.7)
-    Thread.sleep(until: Date(timeIntervalSinceNow: swingTime))
-    servos.set(channel: 15, value: 0.5)
-    Thread.sleep(until: Date(timeIntervalSinceNow: swingTime))
-    servos.set(channel: 15, value: 0.3)
-    Thread.sleep(until: Date(timeIntervalSinceNow: swingTime))
-    servos.set(channel: 15, value: 0.5)
+    #if true  // IMPORTANT: FIGURE SERVO LIMITS FIRST TO AVOID SERVO DAMAGE
+    let servoSafeZoneMin = 0.3
+    let servoSafeZoneMax = 0.7
+    let channel = 15
+    servos.set(channel: channel, value: servoSafeZoneMin)
+    Thread.sleep(forTimeInterval: swingTime)
+
+    servos.set(channel: channel, value: 0.5)
+    Thread.sleep(forTimeInterval: swingTime)
+
+    servos.set(channel: channel, value: servoSafeZoneMax)
+    Thread.sleep(forTimeInterval: swingTime)
+
+    servos.set(channel: channel, value: 0.5)
+    Thread.sleep(forTimeInterval: swingTime)
+
+    servos.set(channel: channel, value: servoSafeZoneMin)
+    Thread.sleep(forTimeInterval: swingTime)
+
+    servos.set(channel: channel, value: 0.5)
     #endif
 }
 

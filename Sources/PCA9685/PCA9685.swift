@@ -78,8 +78,12 @@ public class PCA9685 {
         link.write(data: Data([address]) + values)
     }
 
-    /// Change the value of a register by transforming its current value.
-    func asjustRegisterValue(address: UInt8, adjust usingTransform: (UInt8) -> UInt8) {
+    /// Change the value of a register by reading its current value, passing that
+    /// to a transform function, then wrirting the transformed value to the register.
+    ///
+    /// - Parameter address: The register to read/write.
+    /// - Parameter adjust: Trsnsform to use to convert the existing setting to a new value.
+    func adjustRegisterValue(address: UInt8, adjust usingTransform: (UInt8) -> UInt8) {
         let oldValue = link.writeAndRead(sendFrom: Data([address]), receiveCount: 1)[0]
 
         let newValue = usingTransform(oldValue)
@@ -91,8 +95,17 @@ public class PCA9685 {
     ///
     /// - Parameter frequency: desired fequency of PWM signal. Will clip to valid range  24...1526 Hz.
     ///
+    /// - Note: This will temporarily put the device to sleep, creating a short period where it will not respond
+    /// to commands. It signals this period by holding the clock. For links that don't support this clock stretching,
+    /// this command is ignored: no PWM frequency change will be attempted.
+    ///
     /// See [Datasheet](https://www.nxp.com/docs/en/data-sheet/PCA9685.pdf) 7.3.5 PWM frequency PRE_SCALE
     public func setPWMClock(frequency hz: Int) {
+        guard link.supportsClockStretching() else {
+            logger.info("Ignoring PWM clock change because link does not support clock stretching, and chip holds clock while moving into sleep mode prior to PWM adjustments.")
+            return
+        }
+
         let builtinOscillator = 25_000_000
 
         let computedPrescale = builtinOscillator / (Self.clockDivisions * hz) - 1
@@ -127,7 +140,7 @@ public class PCA9685 {
         stopPWM()
         Thread.sleep(forTimeInterval: 0.05)
 
-        asjustRegisterValue(address: ModeRegister1.address) {
+        adjustRegisterValue(address: ModeRegister1.address) {
             let register = ModeRegister1()
             register.storage.bytes[0] = $0
             register.sleep = true
@@ -137,7 +150,7 @@ public class PCA9685 {
     }
 
     func exitSleep() {
-        asjustRegisterValue(address: ModeRegister1.address) {
+        adjustRegisterValue(address: ModeRegister1.address) {
             let register = ModeRegister1()
             register.storage.bytes[0] = $0
             register.sleep = false
