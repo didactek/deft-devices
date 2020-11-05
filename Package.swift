@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "Deft",
+    name: "deft",
     products: [
         // Products define the executables and libraries produced by a package, and make them visible to other packages.
         .library(
@@ -51,7 +51,7 @@ let package = Package(
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/didactek/deft-layout.git", from: "0.0.1"),
         // For FTDI SPI support on Mac:
-        .package(url: "https://github.com/didactek/ftdi-synchronous-serial.git", from: "0.0.14"),
+        .package(url: "https://github.com/didactek/ftdi-synchronous-serial.git", from: "0.0.16"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.

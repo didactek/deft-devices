@@ -1,14 +1,11 @@
-# Deft
-
-DEvices from swiFT
-
+# Deft: DEvices from swiFT
 
 A collection of modules for connecting small hardware to computers using the Swift programming language.
 
 
 ## Goals
 - provide a framework for connecting small hardware
-- maximize use and call-site readability
+- maximize call-site readability
 - encourage discovery
   - minimize use of external libraries
 - avoid any root/sudo access
@@ -18,9 +15,9 @@ A collection of modules for connecting small hardware to computers using the Swi
 
 ## Features
 
-### DeftLayout
+### Use of DeftLayout 
 
-DeftLayout is a framework for mapping values of Swift data types to the bit-level positions
+DeftLayout is the Deft framework for mapping values of Swift data types to the bit-level positions
 used in device protocols. It performs the role of functions like pack/unpack in Ruby or Python, or of
 bitwise boolean operations, bitfields, and unions in C.
 
