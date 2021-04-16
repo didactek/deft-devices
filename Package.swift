@@ -81,9 +81,11 @@ let package = Package(
         .target(
             name: "PlatformSPI",
             dependencies: [
-                "DeftBus",  // always required
-                "FTDI",  // optional: use an FTDI FT232H USB adapter
-                "LinuxSPI",  // optional: use special device file /dev/spidev
+                // always required:
+                "DeftBus",
+                // Choose one of the following appropriate for your platform:
+                "FTDI",  // an FTDI FT232H USB adapter
+                //"LinuxSPI",  // linux special device file /dev/spidev
             ]),
         .target(
             name: "MCP9808",

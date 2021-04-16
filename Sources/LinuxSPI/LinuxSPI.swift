@@ -7,16 +7,13 @@
 //  SPDX-License-Identifier: Apache-2.0
 //
 
+#if !os(macOS)
 import Foundation
 
 import DeftBus
 import LinuxSPIDev
 
-#if !os(macOS)
-import Glibc
-#else
-import Darwin
-#endif
+import Glibc  // or Darwin, if testing compilation on macOS
 
 
 public class LinuxSPI: LinkSPI {
@@ -65,3 +62,4 @@ public class LinuxSPI: LinkSPI {
     }
 
 }
+#endif
