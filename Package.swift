@@ -26,6 +26,9 @@ let package = Package(
             name: "LinuxSPI",
             targets: ["LinuxSPI"]),
         .library(
+            name: "PlatformSPI",
+            targets: ["PlatformSPI"]),
+        .library(
             name: "MCP9808",
             targets: ["MCP9808"]),
         .library(
@@ -76,6 +79,13 @@ let package = Package(
             name: "LinuxSPI",
             dependencies: ["DeftBus", "LinuxSPIDev"]),
         .target(
+            name: "PlatformSPI",
+            dependencies: [
+                "DeftBus",  // always required
+                "FTDI",  // optional: use an FTDI FT232H USB adapter
+                "LinuxSPI",  // optional: use special device file /dev/spidev
+            ]),
+        .target(
             name: "MCP9808",
             dependencies: ["DeftBus", "DeftLayout"]),
         .testTarget(
@@ -89,7 +99,7 @@ let package = Package(
             dependencies: ["DeftBus", "LEDUtils"]),
         .testTarget(
             name: "ShiftLEDTests",
-            dependencies: ["LEDUtils", "LinuxSPI", "ShiftLED"]),
+            dependencies: ["DeftBus", "LEDUtils", "ShiftLED"]),
         .target(
             name: "TEA5767",
             dependencies: ["DeftBus", "DeftLayout"]),
@@ -98,12 +108,12 @@ let package = Package(
 //            dependencies: ["DeftLayout", "DeftBus", "TEA5767"]),
         .target(
             name: "DeftExample",
-            dependencies: ["DeftBus", "DeftLayout", "LEDUtils", "LinuxI2C", "LinuxSPI", "MCP9808", "PCA9685", "ShiftLED", "TEA5767", "FTDI"]),  // LibUSB for FTDI-SPI/Mac
+            dependencies: ["DeftBus", "DeftLayout", "LEDUtils", "LinuxI2C", "MCP9808", "PCA9685", "ShiftLED", "TEA5767", "FTDI", "PlatformSPI"]),
         .target(
             name: "SimpleI2CExample",
-            dependencies: ["DeftBus", "DeftLayout", "LinuxI2C", "MCP9808", "PCA9685", "TEA5767", "FTDI"]),  // LibUSB for FTDI-SPI/Mac
+            dependencies: ["DeftBus", "DeftLayout", "LinuxI2C", "MCP9808", "PCA9685", "TEA5767", "FTDI"]),
         .target(
             name: "SimpleSPIExample",
-            dependencies: ["DeftBus", "DeftLayout", "LEDUtils", "LinuxSPI", "ShiftLED", "FTDI"]),  // LibUSB for FTDI-SPI/Mac
+            dependencies: ["DeftBus", "DeftLayout", "LEDUtils", "ShiftLED", "PlatformSPI"]),
     ]
 )

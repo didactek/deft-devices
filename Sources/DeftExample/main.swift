@@ -14,7 +14,7 @@ import DeftBus
 import LEDUtils
 
 // interfaces
-import LinuxSPI
+import PlatformSPI
 #if os(macOS)
 #else
 import LinuxI2C
@@ -22,9 +22,6 @@ import LinuxI2C
 #if canImport(FTDI)
 import FTDI
 import LibUSB
-extension FtdiSPI : LinkSPI {
-    // no work necessary
-}
 extension FtdiI2CDevice : LinkI2C {
     // no work necessary
 }
@@ -60,7 +57,8 @@ func setupLinks() -> [LinkRequirement] {
     if let ftdiDevice = try? usbSubsystem
         .findDevice(idVendor: Ftdi.defaultIdVendor,
                     idProduct: Ftdi.defaultIdProduct) {
-        #if true  // can choose only one of I2C, SPI
+        #if true  // want I2C things instead of SPI things
+        // (can choose only one of I2C, SPI provided by FTDI)
         if let bus = try? FtdiI2C(ftdiAdapter: ftdiDevice) {
             if let radioLink = try? FtdiI2CDevice(busHost: bus, nodeAddress: TEA5767_Radio.defaultNodeAddress) {
                 connections.append(.radio(link: radioLink))
@@ -75,7 +73,7 @@ func setupLinks() -> [LinkRequirement] {
             }
         }
         #else
-        if let spi = try? FtdiSPI(ftdiAdapter: ftdiDevice, speedHz: 1_000_000) {
+        if let spi = try? platformSPI(speedHz: 1_000_000) {
             connections.append(.shiftLED(link: spi))
         }
         #endif
@@ -103,7 +101,7 @@ func setupLinks() -> [LinkRequirement] {
     if let tempLink = try? LinuxI2C(busID: 1, nodeAddress: MCP9808_TemperatureSensor.defaultNodeAddress) {
         connections.append(.thermometer(link: tempLink))
     }
-    if let spi = try? LinuxSPI(busID: 0, speedHz: 30_500) {
+    if let spi = try? platformSPI(speedHz: 30_500) {
         connections.append(.shiftLED(link: spi))
     }
     #endif //os(macOS)
