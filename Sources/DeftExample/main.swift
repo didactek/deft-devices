@@ -21,7 +21,7 @@ import LinuxI2C
 #endif
 #if canImport(FTDI)
 import FTDI
-import LibUSB
+import PortableUSB
 extension FtdiI2CDevice : LinkI2C {
     // no work necessary
 }
@@ -53,7 +53,7 @@ func setupLinks() -> [LinkRequirement] {
     var connections: [LinkRequirement] = []
 
     #if canImport(FTDI)
-    let usbSubsystem = USBBus()
+    let usbSubsystem = PortableUSB.platformBus()
     if let ftdiDevice = try? usbSubsystem
         .findDevice(idVendor: Ftdi.defaultIdVendor,
                     idProduct: Ftdi.defaultIdProduct) {

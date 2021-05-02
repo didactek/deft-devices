@@ -1,4 +1,4 @@
-// swift-tools-version:5.1
+// swift-tools-version:5.3
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -55,6 +55,7 @@ let package = Package(
         .package(url: "https://github.com/didactek/deft-layout.git", from: "0.0.1"),
         // For FTDI SPI support on Mac:
         .package(url: "https://github.com/didactek/ftdi-synchronous-serial.git", from: "0.0.16"),
+        .package(url: "https://github.com/didactek/deft-simple-usb.git", from: "0.0.1"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -64,7 +65,7 @@ let package = Package(
             dependencies: []),
         .testTarget(
             name: "DeftBusTests",
-            dependencies: ["DeftBus", "DeftLayout"]),
+            dependencies: ["DeftBus"]),
         .target(
             name: "LEDUtils",
             dependencies: []),
@@ -84,18 +85,24 @@ let package = Package(
                 // always required:
                 "DeftBus",
                 // Choose one of the following appropriate for your platform:
-                "FTDI",  // an FTDI FT232H USB adapter
+                .product(name: "FTDI", package: "ftdi-synchronous-serial"),  // an FTDI FT232H USB adapter...
+                .product(name: "PortableUSB", package: "deft-simple-usb"),  //...using an appropriate USB adapter
+                // - or -
                 //"LinuxSPI",  // linux special device file /dev/spidev
             ]),
         .target(
             name: "MCP9808",
-            dependencies: ["DeftBus", "DeftLayout"]),
+            dependencies: ["DeftBus",
+                           .product(name: "DeftLayout", package: "deft-layout"),
+            ]),
         .testTarget(
             name: "MCP9808Tests",
-            dependencies: ["DeftBus", "DeftLayout", "MCP9808"]),
+            dependencies: ["DeftBus", "MCP9808"]),
         .target(
             name: "PCA9685",
-            dependencies: ["DeftBus", "DeftLayout"]),
+            dependencies: ["DeftBus",
+                           .product(name: "DeftLayout", package: "deft-layout"),
+            ]),
         .target(
             name: "ShiftLED",
             dependencies: ["DeftBus", "LEDUtils"]),
@@ -104,18 +111,30 @@ let package = Package(
             dependencies: ["DeftBus", "LEDUtils", "ShiftLED"]),
         .target(
             name: "TEA5767",
-            dependencies: ["DeftBus", "DeftLayout"]),
+            dependencies: ["DeftBus",
+                           .product(name: "DeftLayout", package: "deft-layout"),
+            ]),
 //        .testTarget(
 //            name: "TEA5767Tests",
 //            dependencies: ["DeftLayout", "DeftBus", "TEA5767"]),
         .target(
             name: "DeftExample",
-            dependencies: ["DeftBus", "DeftLayout", "LEDUtils", "LinuxI2C", "MCP9808", "PCA9685", "ShiftLED", "TEA5767", "FTDI", "PlatformSPI"]),
+            dependencies: ["DeftBus", "LEDUtils", "LinuxI2C", "MCP9808", "PCA9685", "ShiftLED", "TEA5767",
+                           .product(name: "FTDI", package: "ftdi-synchronous-serial"),
+                           .product(name: "PortableUSB", package: "deft-simple-usb"),
+                           "PlatformSPI"]),
         .target(
             name: "SimpleI2CExample",
-            dependencies: ["DeftBus", "DeftLayout", "LinuxI2C", "MCP9808", "PCA9685", "TEA5767", "FTDI"]),
+            dependencies: ["DeftBus", "LinuxI2C", "MCP9808", "PCA9685", "TEA5767",
+                           .product(name: "FTDI", package: "ftdi-synchronous-serial"),
+                           .product(name: "PortableUSB", package: "deft-simple-usb"),
+            ]),
         .target(
             name: "SimpleSPIExample",
-            dependencies: ["DeftBus", "DeftLayout", "LEDUtils", "ShiftLED", "PlatformSPI"]),
+            dependencies: ["DeftBus",
+                           "LEDUtils", "ShiftLED", "PlatformSPI",
+                           .product(name: "FTDI", package: "ftdi-synchronous-serial"),
+                           .product(name: "PortableUSB", package: "deft-simple-usb"),
+            ]),
     ]
 )

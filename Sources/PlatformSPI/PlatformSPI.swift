@@ -13,7 +13,7 @@ import DeftBus
 // Use an interface based on what Package.swift is configured to use.
 #if canImport(FTDI)
 import FTDI
-import LibUSB
+import PortableUSB
 extension FtdiSPI : LinkSPI {
     // no work to do
 }
@@ -24,7 +24,7 @@ import LinuxSPI
 // FIXME: maybe make this not a global function?
 public func platformSPI(speedHz: Int) throws -> LinkSPI {
     #if canImport(FTDI)
-    let usbSubsystem = USBBus()
+    let usbSubsystem = PortableUSB.platformBus()
     let ftdiDevice = try usbSubsystem
         .findDevice(idVendor: Ftdi.defaultIdVendor,
                     idProduct: Ftdi.defaultIdProduct)

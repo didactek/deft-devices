@@ -15,7 +15,7 @@ import DeftBus
 // interfaces
 #if canImport(FTDI)
 import FTDI
-import LibUSB
+import PortableUSB
 extension FtdiI2CDevice : LinkI2C {
     // no work to do
 }
@@ -28,7 +28,7 @@ import PCA9685
 
 do {
     #if canImport(FTDI)
-    let usbSubsystem = USBBus()
+    let usbSubsystem = PortableUSB.platformBus()
     let ftdiDevice = try! usbSubsystem
         .findDevice(idVendor: Ftdi.defaultIdVendor,
                     idProduct: Ftdi.defaultIdProduct)
