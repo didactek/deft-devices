@@ -15,18 +15,6 @@ import LEDUtils
 
 // interfaces
 import PlatformSPI
-#if os(macOS)
-#else
-import LinuxI2C
-#endif
-#if canImport(FTDI)
-import FTDI
-import PortableUSB
-extension FtdiI2CDevice : LinkI2C {
-    // no work necessary
-}
-#endif
-
 
 // specific devices:
 import MCP9808
@@ -52,61 +40,30 @@ enum LinkRequirement {
 func setupLinks() -> [LinkRequirement] {
     var connections: [LinkRequirement] = []
 
-    #if canImport(FTDI)
-    let usbSubsystem = PortableUSB.platformBus()
-    if let ftdiDevice = try? usbSubsystem
-        .findDevice(idVendor: Ftdi.defaultIdVendor,
-                    idProduct: Ftdi.defaultIdProduct) {
-        #if true  // want I2C things instead of SPI things
-        // (can choose only one of I2C, SPI provided by FTDI)
-        if let bus = try? FtdiI2C(ftdiAdapter: ftdiDevice) {
-            if let radioLink = try? FtdiI2CDevice(busHost: bus, nodeAddress: TEA5767_Radio.defaultNodeAddress) {
-                connections.append(.radio(link: radioLink))
-            }
+    let guru = PlatformDeviceBroker()
 
-            if let tempLink = try? FtdiI2CDevice(busHost: bus, nodeAddress: MCP9808_TemperatureSensor.defaultNodeAddress) {
-                connections.append(.thermometer(link: tempLink))
-            }
+    #if true  // want I2C things instead of SPI things
+    // (can choose only one of I2C, SPI provided by FTDI)
+    // FIXME: LinkI2C objects don't typically validate their device is on the bus
+    // and responsive. Currently managing this list with comments.
 
-            if let servoLink = try? FtdiI2CDevice(busHost: bus, nodeAddress: PCA9685.allCallAddress) {
-                connections.append(.servo(link: servoLink))
-            }
-        }
-        #else
-        if let spi = try? platformSPI(speedHz: 1_000_000) {
-            connections.append(.shiftLED(link: spi))
-        }
-        #endif
-    }
-    #else  // no FTDI
-    #if os(macOS)  // Mac; no FTDI
-    // For I2C devices, try using ssh to bridge to remote interface:
-    if #available(OSX 10.15, *) {
-        let pi = SSHTransport(destination: "pi@raspberrypi.local")
-
-        // 5.1 radio bug
-        if let radioLink = try? I2CToolsLink(transport: pi, busID: 1, nodeAddress: TEA5767_Radio.defaultNodeAddress) {
-            connections.append(.radio(link: radioLink))
-        }
-
-        if let tempLink = try? I2CToolsLink(transport: pi, busID: 1, nodeAddress: MCP9808_TemperatureSensor.defaultNodeAddress) {
-            connections.append(.thermometer(link: tempLink))
-        }
-    }
-    #else  // Linux; no FTDI
-    // 5.1 radio bug
-    if let radioLink = try? LinuxI2C(busID: 1, nodeAddress: TEA5767_Radio.defaultNodeAddress) {
+    if let radioLink = try? guru.findI2C(nodeAddress: TEA5767_Radio.defaultNodeAddress) {
         connections.append(.radio(link: radioLink))
     }
-    if let tempLink = try? LinuxI2C(busID: 1, nodeAddress: MCP9808_TemperatureSensor.defaultNodeAddress) {
-        connections.append(.thermometer(link: tempLink))
-    }
-    if let spi = try? platformSPI(speedHz: 30_500) {
+
+//    if let tempLink = try? guru.findI2C(nodeAddress: MCP9808_TemperatureSensor.defaultNodeAddress) {
+//        connections.append(.thermometer(link: tempLink))
+//    }
+
+//    if let servoLink = try? guru.findI2C(nodeAddress: PCA9685.allCallAddress) {
+//        connections.append(.servo(link: servoLink))
+//    }
+
+    #else // SPI
+    if let spi = try? guru.platformSPI(speedHz: 1_000_000) {
         connections.append(.shiftLED(link: spi))
     }
-    #endif //os(macOS)
-    #endif  //canImport(FTDI)
-
+    #endif
 
     return connections
 }
@@ -166,9 +123,9 @@ if #available(OSX 10.12, *) {  // FIXME: encode this in the Package requirements
     // Add a temperature record every second:
     if let temp = temp, let leds = leds {
         let temperatureTracker = TimeAndTemperature()
-            let sampleTemperature = Timer(timeInterval: 1, repeats: true) {_ in
-                temperatureTracker.recordObservation(temperature: temp.temperature)
-            }
+        let sampleTemperature = Timer(timeInterval: 1, repeats: true) {_ in
+            temperatureTracker.recordObservation(temperature: temp.temperature)
+        }
         RunLoop.current.add(sampleTemperature, forMode: .fade)
         RunLoop.current.add(sampleTemperature, forMode: .flag)
         RunLoop.current.add(sampleTemperature, forMode: .temperature)

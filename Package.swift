@@ -56,6 +56,7 @@ let package = Package(
         // For FTDI SPI support on Mac:
         .package(url: "https://github.com/didactek/ftdi-synchronous-serial.git", from: "0.0.16"),
         .package(url: "https://github.com/didactek/deft-simple-usb.git", from: "0.0.1"),
+        .package(url: "https://github.com/didactek/deft-mcp2221.git", from: "0.0.1"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -80,15 +81,20 @@ let package = Package(
             name: "LinuxSPI",
             dependencies: ["DeftBus", "LinuxSPIDev"]),
         .target(
+            // FIXME: no longer SPI-specific
             name: "PlatformSPI",
             dependencies: [
                 // always required:
                 "DeftBus",
-                // Choose one of the following appropriate for your platform:
+                // Choose from the following that are appropriate for your platform:
                 .product(name: "FTDI", package: "ftdi-synchronous-serial"),  // an FTDI FT232H USB adapter...
                 .product(name: "PortableUSB", package: "deft-simple-usb"),  //...using an appropriate USB adapter
                 // - or -
-                //"LinuxSPI",  // linux special device file /dev/spidev
+                "LinuxSPI",  // linux special device file /dev/spidev
+                "LinuxI2C",  // linux special device files /dev/i2c-*
+                // - or -
+                .product(name: "DeftMCP2221", package: "deft-mcp2221"), // I2C
+                // (requires 'brew install hidapi'; troubleshoot with 'pkg-config --cflags hidapi')
             ]),
         .target(
             name: "MCP9808",
@@ -119,22 +125,19 @@ let package = Package(
 //            dependencies: ["DeftLayout", "DeftBus", "TEA5767"]),
         .target(
             name: "DeftExample",
-            dependencies: ["DeftBus", "LEDUtils", "LinuxI2C", "MCP9808", "PCA9685", "ShiftLED", "TEA5767",
-                           .product(name: "FTDI", package: "ftdi-synchronous-serial"),
-                           .product(name: "PortableUSB", package: "deft-simple-usb"),
-                           "PlatformSPI"]),
+            dependencies: ["DeftBus", "PlatformSPI",
+                           "LEDUtils", "ShiftLED",
+                           "TEA5767","MCP9808", "PCA9685",
+            ]),
         .target(
             name: "SimpleI2CExample",
-            dependencies: ["DeftBus", "LinuxI2C", "MCP9808", "PCA9685", "TEA5767",
-                           .product(name: "FTDI", package: "ftdi-synchronous-serial"),
-                           .product(name: "PortableUSB", package: "deft-simple-usb"),
+            dependencies: ["DeftBus", "PlatformSPI",
+                           "MCP9808", "PCA9685", "TEA5767",
             ]),
         .target(
             name: "SimpleSPIExample",
-            dependencies: ["DeftBus",
-                           "LEDUtils", "ShiftLED", "PlatformSPI",
-                           .product(name: "FTDI", package: "ftdi-synchronous-serial"),
-                           .product(name: "PortableUSB", package: "deft-simple-usb"),
+            dependencies: ["DeftBus", "PlatformSPI",
+                           "LEDUtils", "ShiftLED",
             ]),
     ]
 )

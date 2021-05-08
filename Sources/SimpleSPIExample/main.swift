@@ -18,7 +18,8 @@ import PlatformSPI
 import ShiftLED
 
 do {
-    let spi = try! platformSPI(speedHz: 30_500)
+    let configurationGuru = PlatformDeviceBroker()
+    let spi = try! configurationGuru.platformSPI(speedHz: 30_500)
 
     let ledCount = 73
     let leds = ShiftLED(bus: spi, stringLength: ledCount, current: 0.05)
