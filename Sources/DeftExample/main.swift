@@ -19,7 +19,7 @@ import PlatformSPI
 // specific devices:
 import MCP9808
 import ShiftLED
-import TEA5767  // 5.1 radio bug
+import TEA5767
 import PCA9685
 
 extension RunLoop.Mode {
@@ -94,11 +94,15 @@ if #available(OSX 10.12, *) {  // FIXME: encode this in the Package requirements
         }
     }
 
-    // 5.1 radio bug
     if let radio = radio {
         radio.tuneTo(mHz: 94.9)
         radio.executeRequests()
 
+        // FIXME: the following sleep is required: in addition to the "ready" flag, the
+        // device also may send a NACK when asked for data immediately after the
+        // tuning change. There needs to be a pattern for accommodating NACKs
+        // with this interpretation.
+        Thread.sleep(forTimeInterval: 0.5)
         radio.updateStatus()
         while !radio.ready {
             radio.updateStatus()
@@ -106,8 +110,8 @@ if #available(OSX 10.12, *) {  // FIXME: encode this in the Package requirements
 
         print(radio.stereoTuned ? "in stereo" : "mono")
         print("Radio tuned to \(radio.tuning) MHz")
-
     }
+
 
     if let temp = temp {
         let currentTemp = temp.temperature

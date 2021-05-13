@@ -63,7 +63,7 @@ public protocol LinkI2C {
 public extension LinkI2C {
     /// Replace the existing bytes in data with bytes read from the device.
     ///
-    /// - Parameter data: Ezisting bytes that should be replaced with new data from the device.
+    /// - Parameter data: Existing bytes that should be replaced with new data from the device.
     func read(data: inout Data) {
         data = read(count: data.count)
     }

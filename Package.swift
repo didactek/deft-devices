@@ -53,10 +53,16 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/didactek/deft-layout.git", from: "0.0.1"),
-        // For FTDI SPI support on Mac:
+        // For FTDI SPI or I2C support on macOS or Linux:
         .package(url: "https://github.com/didactek/ftdi-synchronous-serial.git", from: "0.0.16"),
+
+        // For I2C support on macOS or Linux using the MCP2221A USB I2C adapter:
+        // Note: the DeftMCP2221 depends on the system library 'hidapi' that must be
+        // installed by a host provider (apt or brew). Keep download + build simple
+        // by not including this unless actually using the adapter:
+        // .package(url: "https://github.com/didactek/deft-mcp2221.git", from: "0.0.1"),
+
         .package(url: "https://github.com/didactek/deft-simple-usb.git", from: "0.0.1"),
-        .package(url: "https://github.com/didactek/deft-mcp2221.git", from: "0.0.1"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -86,15 +92,20 @@ let package = Package(
             dependencies: [
                 // always required:
                 "DeftBus",
+
                 // Choose from the following that are appropriate for your platform:
                 .product(name: "FTDI", package: "ftdi-synchronous-serial"),  // an FTDI FT232H USB adapter...
-                .product(name: "PortableUSB", package: "deft-simple-usb"),  //...using an appropriate USB adapter
-                // - or -
-                "LinuxSPI",  // linux special device file /dev/spidev
+                .product(name: "HostFWUSB", package: "deft-simple-usb"),
+
+                // LinuxSPI needs special C-preprocessor attention, so do not include by default:
+                // "LinuxSPI",  // linux special device file /dev/spidev
+
                 "LinuxI2C",  // linux special device files /dev/i2c-*
-                // - or -
-                .product(name: "DeftMCP2221", package: "deft-mcp2221"), // I2C
+
+                // DeftMCP2221 has library dependencies; don't include by default.
                 // (requires 'brew install hidapi'; troubleshoot with 'pkg-config --cflags hidapi')
+                // If using, also import the package in the dependencies section above.
+                // .product(name: "DeftMCP2221", package: "deft-mcp2221"), // I2C
             ]),
         .target(
             name: "MCP9808",
