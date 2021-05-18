@@ -54,7 +54,7 @@ let package = Package(
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/didactek/deft-layout.git", from: "0.0.1"),
         // For FTDI SPI or I2C support on macOS or Linux:
-        .package(url: "https://github.com/didactek/ftdi-synchronous-serial.git", from: "0.0.16"),
+        .package(url: "https://github.com/didactek/ftdi-synchronous-serial.git", from: "0.5.3"),
 
         // For I2C support on macOS or Linux using the MCP2221A USB I2C adapter:
         // Note: the DeftMCP2221 depends on the system library 'hidapi' that must be

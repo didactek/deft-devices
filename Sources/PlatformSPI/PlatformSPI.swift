@@ -59,19 +59,44 @@ enum platformError: Error {
 }
 
 /// Factory to build devices as appropriate for the host OS.
-/// This may be messy: the goal is to centralize all conditionals here.
 ///
 /// - Note: This may not be the most efficient way to find a device: if the configuration of the platform
 /// is known, it may be more efficient (and certainly more clear) to explicitly instantiate the transport components.
-///
 public class PlatformDeviceBroker {
-    lazy var usbBus = PortableUSB.platformBus()
-    var ftdi: USBDevice? = nil
-    var mcp: USBDevice? = nil
+    // This may be messy: the goal is to centralize all conditionals here.
 
-    public init() {
+    /// Singleton broker representing devices attached to this machine.
+    public static var shared = PlatformDeviceBroker()
+
+    #if canImport(FTDI)
+    let ftdi: USBDevice?
+    #endif
+
+    private init() {
+        #if canImport(FTDI)
+        // usbBus might be more-generally useful, but keep
+        // inside the conditional until that happens to reduce warnings when FTDI is not compiled in.
+        let usbBus = PortableUSB.platformBus()
+        ftdi = try? usbBus.findDevice(idVendor: Ftdi.defaultIdVendor, idProduct: Ftdi.defaultIdProduct)
+        #endif
     }
 
+    /// Convenience search pattern based on the I2CTraits defaults for a class.
+    /// - Throws: If initializer throws or if subsequent ping on the link does not confirm a responsive device.
+    public func findI2C(usingDefaultsFor nodeClass: I2CTraits.Type) throws -> LinkI2C {
+        return try findI2C(nodeAddress: nodeClass.defaultNodeAddress,
+                           checking: nodeClass.presenceStrategy)
+    }
+
+    /// Configure a link and ping device.
+    /// - Parameter checking: Ping strategy to use to confirm device presence.
+    /// - Throws: If link or ping fails.
+    public func findI2C(nodeAddress: Int, checking: PresenceQuery) throws -> LinkI2C {
+        return try findI2C(nodeAddress: nodeAddress).ping(strategy: checking)
+    }
+
+    /// Attempt to establish an I2C connection to node using known
+    /// adapters on this computer.
     public func findI2C(nodeAddress: Int) throws -> LinkI2C {
         var interfaceFound = false
         // potential providers are:
@@ -80,7 +105,6 @@ public class PlatformDeviceBroker {
         // character special device on Linux
 
         #if canImport(FTDI)
-        ftdi = try? usbBus.findDevice(idVendor: Ftdi.defaultIdVendor, idProduct: Ftdi.defaultIdProduct)
         if let ftdiAttached = ftdi {
             interfaceFound = true
             if let busHost = try? FtdiI2C(ftdiAdapter: ftdiAttached) {

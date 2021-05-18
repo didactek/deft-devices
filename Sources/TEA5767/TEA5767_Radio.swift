@@ -26,6 +26,7 @@ import DeftBus
 /// - Note: Preset tuning is not implemented; feature seems sparsely documented.
 public class TEA5767_Radio: I2CTraits {
     public static var defaultNodeAddress = 0x60
+    public static var presenceStrategy: PresenceQuery = .readByte
 
     static let intermediateFrequency: Double = 225_000
     static let referenceFrequency: Double = 32_768
@@ -40,7 +41,7 @@ public class TEA5767_Radio: I2CTraits {
 
     /// Flush the settings pending in the writeBuffer to the device.
     public func executeRequests() {
-        link.write(data: requestBuffer.storage.bytes)
+        try! link.write(data: requestBuffer.storage.bytes)
     }
 
     /// Include tuning in the pending request.
@@ -60,7 +61,7 @@ public class TEA5767_Radio: I2CTraits {
     /// The TEA5767 uses a slightly-unusual query pattern: rather than sending a register number (via
     /// I2C write) and then reading its value (I2C read), the TEA5767
     public func updateStatus() {
-        link.read(data: &statusBuffer.storage.bytes)
+        try! link.read(data: &statusBuffer.storage.bytes)
     }
 
     /// The frequency (in MHz) reported in the last updateStatus

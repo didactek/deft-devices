@@ -9,6 +9,15 @@
 
 import Foundation
 
+public enum PresenceQuery {
+    /// An SMBus no-data "write" (control/address byte followed by STOP).
+    case quickWrite
+    /// Ask to read; clock in only a single byte.
+    case readByte
+    /// Do not query the device.
+    case doNotPing
+}
+
 /// Information about how a device uses an I2C bus.
 ///
 /// Devices do not need to implement this protocol to be used with a `LinkI2C`, but by implementing
@@ -23,4 +32,11 @@ public protocol I2CTraits {
     /// Note that some chips provide means to change their default address via jumpers or programmable configuration.
     /// Different addresses may be used when establishing the communications `LinkI2C`.
     static var defaultNodeAddress: Int { get }
+
+    /// Technique to use to see if the device is present on the bus.
+    static var presenceStrategy: PresenceQuery { get }
+}
+
+extension I2CTraits {
+    public static var presenceStrategy: PresenceQuery { get {.doNotPing} }
 }

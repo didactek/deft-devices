@@ -75,7 +75,7 @@ public class PCA9685 {
     ///
     /// The controller is set to auto-increment mode in its intializer, so sending multiple bytes is possible.
     func writeRegister(startingAt address: UInt8, values: Data) {
-        link.write(data: Data([address]) + values)
+        try! link.write(data: Data([address]) + values)
     }
 
     /// Change the value of a register by reading its current value, passing that
@@ -84,7 +84,7 @@ public class PCA9685 {
     /// - Parameter address: The register to read/write.
     /// - Parameter adjust: Trsnsform to use to convert the existing setting to a new value.
     func adjustRegisterValue(address: UInt8, adjust usingTransform: (UInt8) -> UInt8) {
-        let oldValue = link.writeAndRead(sendFrom: Data([address]), receiveCount: 1)[0]
+        let oldValue = try! link.writeAndRead(sendFrom: Data([address]), receiveCount: 1)[0]
 
         let newValue = usingTransform(oldValue)
         writeRegister(startingAt: address, values: Data([newValue]))

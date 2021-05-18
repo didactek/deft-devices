@@ -13,6 +13,7 @@ import DeftBus
 /// Class for communicating with a Microchip MCP 9808 temperature sensor.
 public class MCP9808_TemperatureSensor: I2CTraits {
     public static var defaultNodeAddress = 0x18  // base; three lower bits hardware-settable
+    public static var presenceStrategy: PresenceQuery = .readByte
 
     let link: LinkI2C
 
@@ -32,7 +33,7 @@ public class MCP9808_TemperatureSensor: I2CTraits {
 
         let result = MCP9808_AmbientTemperatureRegister()
 
-        link.writeAndRead(sendFrom: command.storage.bytes, receiveInto: &result.storage.bytes)
+        try! link.writeAndRead(sendFrom: command.storage.bytes, receiveInto: &result.storage.bytes)
 
         return Double(result.temperatureSixteenthCelsius) / 16.0
         }

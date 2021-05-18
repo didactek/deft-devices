@@ -24,7 +24,7 @@ public protocol LinkI2C {
     ///
     /// - Note: The control byte is added by the transport; it should not be part of `data`.
     /// - Note: This terminates the conversation with a STOP.
-    func write(data: Data)
+    func write(data: Data) throws
 
     /// Read from the device in a single STOP-terminated conversation.
     ///
@@ -32,7 +32,7 @@ public protocol LinkI2C {
     ///
     /// - Note: Reads via this interface are strictly a pull from the device with no mechanism for the clocking node to issue a request first.
     /// Simple conversations are usually highly typical, with only one format for read actions.
-    func read(count: Int) -> Data
+    func read(count: Int) throws -> Data
 
 
     /// Send and receive bytes in a single I2C conversation.
@@ -41,7 +41,7 @@ public protocol LinkI2C {
     /// - Parameter sendFrom: Data to be sent.
     /// - Parameter receiveCount: Number of bytes to read from the bus after sending.
     /// - Returns: Bytes read from the device.
-    func writeAndRead(sendFrom: Data, receiveCount: Int) -> Data
+    func writeAndRead(sendFrom: Data, receiveCount: Int) throws -> Data
 
     /// Report whether the bus adapter and software driver support clock stretching.
     ///
@@ -64,8 +64,8 @@ public extension LinkI2C {
     /// Replace the existing bytes in data with bytes read from the device.
     ///
     /// - Parameter data: Existing bytes that should be replaced with new data from the device.
-    func read(data: inout Data) {
-        data = read(count: data.count)
+    func read(data: inout Data) throws {
+        data = try read(count: data.count)
     }
 
     /// Send all bytes in sendFrom, then replace existing bytes of receiveInto with a read--all in a single I2C conversation.
@@ -73,8 +73,24 @@ public extension LinkI2C {
     /// Count of bytes is inferred from the sizes of the passed-in Data blocks.
     ///
     /// Commonly used in patterns like reading from a named register.
-    func writeAndRead(sendFrom: Data, receiveInto: inout Data) {
+    func writeAndRead(sendFrom: Data, receiveInto: inout Data) throws {
         let count = receiveInto.count
-        receiveInto = writeAndRead(sendFrom: sendFrom, receiveCount: count)
+        receiveInto = try writeAndRead(sendFrom: sendFrom, receiveCount: count)
+    }
+
+    /// Check that the device is on the bus and responding.
+    /// - parameter strategy: Pattern to use for checking device presence
+    /// - throws If device is not responsing
+    func ping(strategy: PresenceQuery) throws -> Self {
+        switch strategy {
+        case .doNotPing:
+            break
+//            fatalError("Ping requested, but ping should not be used with this device")
+        case .quickWrite:
+            try write(data: Data())
+        case .readByte:
+            let _ = try read(count: 1)
+        }
+        return self
     }
 }

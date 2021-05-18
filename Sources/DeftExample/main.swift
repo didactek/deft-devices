@@ -40,24 +40,24 @@ enum LinkRequirement {
 func setupLinks() -> [LinkRequirement] {
     var connections: [LinkRequirement] = []
 
-    let guru = PlatformDeviceBroker()
+    let guru = PlatformDeviceBroker.shared
 
     #if true  // want I2C things instead of SPI things
     // (can choose only one of I2C, SPI provided by FTDI)
-    // FIXME: LinkI2C objects don't typically validate their device is on the bus
-    // and responsive. Currently managing this list with comments.
 
-    if let radioLink = try? guru.findI2C(nodeAddress: TEA5767_Radio.defaultNodeAddress) {
+    if let radioLink = try? guru.findI2C(usingDefaultsFor: TEA5767_Radio.self) {
         connections.append(.radio(link: radioLink))
     }
 
-//    if let tempLink = try? guru.findI2C(nodeAddress: MCP9808_TemperatureSensor.defaultNodeAddress) {
-//        connections.append(.thermometer(link: tempLink))
-//    }
+    if let tempLink = try? guru.findI2C(usingDefaultsFor: MCP9808_TemperatureSensor.self) {
+        connections.append(.thermometer(link: tempLink))
+    }
 
-//    if let servoLink = try? guru.findI2C(nodeAddress: PCA9685.allCallAddress) {
-//        connections.append(.servo(link: servoLink))
-//    }
+
+    // FIXME: PCA9685 needs a ping pattern
+    //    if let servoLink = try? guru.findI2C(nodeAddress: PCA9685.allCallAddress) {
+    //        connections.append(.servo(link: servoLink))
+    //    }
 
     #else // SPI
     if let spi = try? guru.platformSPI(speedHz: 1_000_000) {
@@ -98,11 +98,6 @@ if #available(OSX 10.12, *) {  // FIXME: encode this in the Package requirements
         radio.tuneTo(mHz: 94.9)
         radio.executeRequests()
 
-        // FIXME: the following sleep is required: in addition to the "ready" flag, the
-        // device also may send a NACK when asked for data immediately after the
-        // tuning change. There needs to be a pattern for accommodating NACKs
-        // with this interpretation.
-        Thread.sleep(forTimeInterval: 0.5)
         radio.updateStatus()
         while !radio.ready {
             radio.updateStatus()
