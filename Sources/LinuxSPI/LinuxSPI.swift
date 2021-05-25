@@ -7,6 +7,26 @@
 //  SPDX-License-Identifier: Apache-2.0
 //
 
+#if false  // Not compiled by default; see following note.
+// - Note: Swift (as of 5.4) does not bridge macros in <linux/spi/spidev.h> that are needed
+// for the ioctl operations to use the /dev/spi interface. The text of these macros
+// in this file must be replaced with hardcoded values.
+// The values may be obtained by compiling and running this short C program:
+
+//    #include <stdio.h>
+//    #include <linux/spi/spidev.h>
+//
+//    #define PRINT(x) printf("let %s = %lu\n", #x, x)
+//
+//    int main() {
+//        PRINT(SPI_IOC_WR_MODE);
+//        PRINT(SPI_IOC_WR_MAX_SPEED_HZ);
+//        PRINT(SPI_IOC_MESSAGE(1));
+//
+//        return 0;
+//    }
+
+
 #if !os(macOS)
 import Foundation
 
@@ -55,11 +75,11 @@ public class LinuxSPI: LinkSPI {
         dataCopy.withUnsafeMutableBytes { dataRaw in
             let addressAsInt = UInt(bitPattern: dataRaw.baseAddress)
             var message = spi_ioc_transfer(tx_buf: __u64(addressAsInt), rx_buf: 0, len: __u32(dataRaw.count), speed_hz: 0, delay_usecs: 0, bits_per_word: 0, cs_change: 0, tx_nbits: 0, rx_nbits: 0, pad: 0)
-            let sendResult = ioctl(fileDescriptor, UInt( 1075866368 )
-/*SPI_IOC_MESSAGE(1)*/, &message)
+            let sendResult = ioctl(fileDescriptor, SPI_IOC_MESSAGE(1), &message)
             //assert(sendResult == 0)  // never a confirmation on send.
         }
     }
 
 }
+#endif
 #endif

@@ -34,7 +34,9 @@ extension DeftMCP2221: LinkI2C {
 #endif
 
 #if os(Linux)
+#if false // See notes in LinuxSPI.swift about <linux/spi/spidev.h>
 import LinuxSPI
+#endif
 import LinuxI2C
 #endif
 
@@ -158,11 +160,13 @@ public class PlatformDeviceBroker {
         }
         #endif
 
+        #if false // See notes in LinuxSPI.swift about <linux/spi/spidev.h>
         #if os(Linux)
         if let spi = try? LinuxSPI(busID: 1, speedHz: speedHz) {
             logger.debug("SPI provided by special device in /dev/")
             return spi
         }
+        #endif
         #endif
 
         throw platformError.noInterfaceFound
