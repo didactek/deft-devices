@@ -18,7 +18,7 @@ import PlatformSPI
 import ShiftLED
 
 do {
-    let configurationGuru = PlatformDeviceBroker()
+    let configurationGuru = PlatformDeviceBroker.shared
     let spi = try! configurationGuru.platformSPI(speedHz: 30_500)
 
     let ledCount = 73
