@@ -15,7 +15,7 @@ A collection of modules for connecting small hardware to computers using the Swi
 
 ## Features
 
-### Use of DeftLayout 
+### DeftLayout for formatting messages
 
 DeftLayout is the Deft framework for mapping values of Swift data types to the bit-level positions
 used in device protocols. It performs the role of functions like pack/unpack in Ruby or Python, or of
@@ -26,11 +26,13 @@ other "magic" constants. Its @Position wrappers aspire to adopt positional notat
 device datasheets.
 
 
-### DeftBus
+### DeftBus I2C+SPI abstraction and hardware support
 
 DeftBus defines protocols for communicating with devices over SPI and I2C.
 
-DeftBus provides implementations of these protocols for using the native Linux SPI and native
+Deft provides multiple implementations of these protocols:
+
+Using native Linux SPI and native
 Linux I2C interfaces.
 
 DeftBus provides an ssh transport that can use command line tools on a remote machine
@@ -86,7 +88,7 @@ Typical hierarchy for a mapping class:
 
 The TEA5767 radio tuner has only one command, consisting of a write of 5 bytes. Its datasheet
 describes the bytes by byte index and bits within the 8-bit byte. The ByteArrayDescription best
-supports this longer  array with byte-oriented descriptions.
+supports this longer array with byte-oriented descriptions.
 
     class TEA5767_WriteLayout: ByteArrayDescription {
         enum SearchStopLevel: UInt8, BitEmbeddable {

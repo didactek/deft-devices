@@ -53,14 +53,15 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/didactek/deft-layout.git", from: "0.0.1"),
+        .package(url: "https://github.com/didactek/deft-log.git", from: "0.0.1"),
         // For FTDI SPI or I2C support on macOS or Linux:
-        .package(url: "https://github.com/didactek/ftdi-synchronous-serial.git", from: "0.5.3"),
+        .package(url: "https://github.com/didactek/ftdi-synchronous-serial.git", from: "0.7.0"),  // 0.7.0 propagates write failures for ping to detect missing devices
 
         // For I2C support on macOS or Linux using the MCP2221A USB I2C adapter:
         // Note: the DeftMCP2221 depends on the system library 'hidapi' that must be
         // installed by a host provider (apt or brew). Keep download + build simple
         // by not including this unless actually using the adapter:
-        // .package(url: "https://github.com/didactek/deft-mcp2221.git", from: "0.0.1"),
+        // .package(url: "https://github.com/didactek/deft-mcp2221.git", from: "0.1.0"),
 
         .package(url: "https://github.com/didactek/deft-simple-usb.git", from: "0.0.1"),
     ],
@@ -136,18 +137,25 @@ let package = Package(
 //            dependencies: ["DeftLayout", "DeftBus", "TEA5767"]),
         .target(
             name: "DeftExample",
-            dependencies: ["DeftBus", "PlatformSPI",
+            dependencies: ["DeftBus",
+                           .product(name: "DeftLog", package: "deft-log"),
+                           "PlatformSPI",
                            "LEDUtils", "ShiftLED",
                            "TEA5767","MCP9808", "PCA9685",
             ]),
         .target(
             name: "SimpleI2CExample",
-            dependencies: ["DeftBus", "PlatformSPI",
+            dependencies: ["DeftBus",
+                           .product(name: "DeftLog", package: "deft-log"),
+
+                           "PlatformSPI",
                            "MCP9808", "PCA9685", "TEA5767",
             ]),
         .target(
             name: "SimpleSPIExample",
-            dependencies: ["DeftBus", "PlatformSPI",
+            dependencies: ["DeftBus",
+                           .product(name: "DeftLog", package: "deft-log"),
+                           "PlatformSPI",
                            "LEDUtils", "ShiftLED",
             ]),
     ]

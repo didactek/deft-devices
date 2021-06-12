@@ -10,6 +10,7 @@
 import Foundation
 
 // utilities
+import DeftLog
 import DeftBus
 import LEDUtils
 
@@ -53,11 +54,9 @@ func setupLinks() -> [LinkRequirement] {
         connections.append(.thermometer(link: tempLink))
     }
 
-
-    // FIXME: PCA9685 needs a ping pattern
-    //    if let servoLink = try? guru.findI2C(nodeAddress: PCA9685.allCallAddress) {
-    //        connections.append(.servo(link: servoLink))
-    //    }
+    if let servoLink = try? guru.findI2C(usingDefaultsFor: PCA9685.self) {
+        connections.append(.servo(link: servoLink))
+    }
 
     #else // SPI
     if let spi = try? guru.platformSPI(speedHz: 1_000_000) {
@@ -73,6 +72,9 @@ func setupLinks() -> [LinkRequirement] {
 // - decide on supported modes based on hardware that was scanned
 // - a mode can render, background process, or update. Each aspect of the mode is optional
 if #available(OSX 10.12, *) {  // FIXME: encode this in the Package requirements? Foundation....
+    DeftLog.settings = [
+        ("com.didactek", .debug),
+    ]
     var radio: TEA5767_Radio? = nil
     var leds: ShiftLED? = nil
     var temp: MCP9808_TemperatureSensor? = nil
@@ -92,6 +94,10 @@ if #available(OSX 10.12, *) {  // FIXME: encode this in the Package requirements
         case .servo(link: let link):
             servo = PCA9685(link: link)
         }
+    }
+
+    if let servo = servo {
+        servo.set(channel: 15, value: 0.5)  // midpoint
     }
 
     if let radio = radio {

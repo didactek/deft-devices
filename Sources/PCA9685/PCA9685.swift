@@ -18,7 +18,14 @@ private var logger = Logger(label: "com.didactek.Deft.PCA0685")
 /// This board provides 16 PWM outputs with 12-bit resolution with configurable clock speed.
 /// - Note: [Datasheet](https://www.nxp.com/docs/en/data-sheet/PCA9685.pdf)
 /// - Bug: FIXME: This device may hold/delay the clock line during some requests (clock change, reset). I2C must monitor.
-public class PCA9685 {
+public class PCA9685: I2CTraits {
+    // Traits:
+    /// Product base address.
+    /// - Note: PCA9685 address can be hardware set as high as 0x7F
+    public static let defaultNodeAddress = 0x40
+
+    public static let presenceStrategy: PresenceQuery = .quickWrite
+
     /// Base I2C address; hardware jumpers offset from here.
     ///
     ///[Datasheet](https://www.nxp.com/docs/en/data-sheet/PCA9685.pdf) 7.1.1 Regular I2C-bus slave address.

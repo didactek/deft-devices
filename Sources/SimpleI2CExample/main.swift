@@ -10,33 +10,19 @@
 import Foundation
 
 // utilities
-import DeftBus
-
-// interfaces
-#if canImport(FTDI)
-import FTDI
-import PortableUSB
-extension FtdiI2CDevice : LinkI2C {
-    // no work to do
-}
-#else
-import LinuxI2C
-#endif
+import DeftLog
+import PlatformSPI
+//import DeftBus
 
 // the device:
 import PCA9685
 
 do {
-    #if canImport(FTDI)
-    let usbSubsystem = PortableUSB.platformBus()
-    let ftdiDevice = try! usbSubsystem
-        .findDevice(idVendor: Ftdi.defaultIdVendor,
-                    idProduct: Ftdi.defaultIdProduct)
-    let bus = try! FtdiI2C(ftdiAdapter: ftdiDevice, overrideClockHz: 10_000)
-    let i2c = try! FtdiI2CDevice(busHost: bus, nodeAddress: PCA9685.baseAddress)
-    #else
-    let i2c = try! LinuxI2C(busId: 0, nodeAddress: PCA9685.baseAddress)
-    #endif
+    DeftLog.settings = [
+        ("com.didactek", .debug),
+    ]
+
+    let i2c = try! PlatformDeviceBroker.shared.findI2C(usingDefaultsFor: PCA9685.self)
 
     let servos = PCA9685(link: i2c)
 

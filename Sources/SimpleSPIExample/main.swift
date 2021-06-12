@@ -10,7 +10,7 @@
 import Foundation
 
 // utilities
-import DeftBus
+import DeftLog
 import LEDUtils
 import PlatformSPI
 
@@ -18,6 +18,7 @@ import PlatformSPI
 import ShiftLED
 
 do {
+    DeftLog.settings = [ ("com.didactek", .trace) ]
     let configurationGuru = PlatformDeviceBroker.shared
     let spi = try! configurationGuru.platformSPI(speedHz: 30_500)
 
