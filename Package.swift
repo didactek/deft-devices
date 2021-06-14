@@ -98,8 +98,7 @@ let package = Package(
                 .product(name: "FTDI", package: "ftdi-synchronous-serial"),  // an FTDI FT232H USB adapter...
                 .product(name: "HostFWUSB", package: "deft-simple-usb"),
 
-                // LinuxSPI needs special C-preprocessor attention, so do not include by default:
-                // "LinuxSPI",  // linux special device file /dev/spidev
+                "LinuxSPI",  // linux special device file /dev/spidev
 
                 "LinuxI2C",  // linux special device files /dev/i2c-*
 

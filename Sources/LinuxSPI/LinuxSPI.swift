@@ -7,25 +7,6 @@
 //  SPDX-License-Identifier: Apache-2.0
 //
 
-#if false  // Not compiled by default; see following note.
-// - Note: Swift (as of 5.4) does not bridge macros in <linux/spi/spidev.h> that are needed
-// for the ioctl operations to use the /dev/spi interface. The text of these macros
-// in this file must be replaced with hardcoded values.
-// The values may be obtained by compiling and running this short C program:
-
-//    #include <stdio.h>
-//    #include <linux/spi/spidev.h>
-//
-//    #define PRINT(x) printf("let %s = %lu\n", #x, x)
-//
-//    int main() {
-//        PRINT(SPI_IOC_WR_MODE);
-//        PRINT(SPI_IOC_WR_MAX_SPEED_HZ);
-//        PRINT(SPI_IOC_MESSAGE(1));
-//
-//        return 0;
-//    }
-
 
 #if !os(macOS)
 import Foundation
@@ -33,7 +14,7 @@ import Foundation
 import DeftBus
 import LinuxSPIDev
 
-import Glibc  // or Darwin, if testing compilation on macOS
+import Glibc  // or "Darwin", if testing compilation on macOS
 
 
 public class LinuxSPI: LinkSPI {
@@ -53,13 +34,13 @@ public class LinuxSPI: LinkSPI {
         }
 
         var mode: UInt8 = 0  // rising clock
-        let modeResult = ioctl(fileDescriptor, UInt(SPI_IOC_WR_MODE), &mode)
+        let modeResult = ioctl(fileDescriptor, UInt(kSPI_IOC_WR_MODE), &mode)
         guard modeResult == 0 else {
             throw SPIError.clockSetupFailure
         }
 
         var speed: UInt32 = UInt32(speedHz)
-        let speedResult = ioctl(fileDescriptor, UInt(SPI_IOC_WR_MAX_SPEED_HZ), &speed);
+        let speedResult = ioctl(fileDescriptor, UInt(kSPI_IOC_WR_MAX_SPEED_HZ), &speed);
         guard speedResult == 0 else {
             throw SPIError.speedSetupFailure
         }
@@ -74,12 +55,14 @@ public class LinuxSPI: LinkSPI {
         var dataCopy = data
         dataCopy.withUnsafeMutableBytes { dataRaw in
             let addressAsInt = UInt(bitPattern: dataRaw.baseAddress)
-            var message = spi_ioc_transfer(tx_buf: __u64(addressAsInt), rx_buf: 0, len: __u32(dataRaw.count), speed_hz: 0, delay_usecs: 0, bits_per_word: 0, cs_change: 0, tx_nbits: 0, rx_nbits: 0, pad: 0)
-            let sendResult = ioctl(fileDescriptor, SPI_IOC_MESSAGE(1), &message)
+            // FIXME: as padding is consumed for different purposes on different platforms
+            // or OS version, initializing this structure appropriately may become hard
+            // and overly-specific.
+            var message = spi_ioc_transfer(tx_buf: __u64(addressAsInt), rx_buf: 0, len: __u32(dataRaw.count), speed_hz: 0, delay_usecs: 0, bits_per_word: 0, cs_change: 0, tx_nbits: 0, rx_nbits: 0, word_delay_usecs: 0, pad: 0)
+            let sendResult = ioctl(fileDescriptor, kSPI_IOC_MESSAGE_1, &message)
             //assert(sendResult == 0)  // never a confirmation on send.
         }
     }
 
 }
-#endif
 #endif
