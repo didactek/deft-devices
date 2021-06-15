@@ -30,44 +30,6 @@ extension RunLoop.Mode {
 }
 
 
-enum LinkRequirement {
-    case shiftLED(link: LinkSPI)
-    case radio(link: LinkI2C)
-    case thermometer(link: LinkI2C)
-    case servo(link: LinkI2C)
-}
-
-
-func setupLinks() -> [LinkRequirement] {
-    var connections: [LinkRequirement] = []
-
-    let guru = PlatformDeviceBroker.shared
-
-    #if true  // want I2C things instead of SPI things
-    // (can choose only one of I2C, SPI provided by FTDI)
-
-    if let radioLink = try? guru.findI2C(usingDefaultsFor: TEA5767_Radio.self) {
-        connections.append(.radio(link: radioLink))
-    }
-
-    if let tempLink = try? guru.findI2C(usingDefaultsFor: MCP9808_TemperatureSensor.self) {
-        connections.append(.thermometer(link: tempLink))
-    }
-
-    if let servoLink = try? guru.findI2C(usingDefaultsFor: PCA9685.self) {
-        connections.append(.servo(link: servoLink))
-    }
-
-    #else // SPI
-    if let spi = try? guru.platformSPI(speedHz: 1_000_000) {
-        connections.append(.shiftLED(link: spi))
-    }
-    #endif
-
-    return connections
-}
-
-
 // Pattern for UI modes:
 // - decide on supported modes based on hardware that was scanned
 // - a mode can render, background process, or update. Each aspect of the mode is optional
@@ -75,26 +37,30 @@ if #available(OSX 10.12, *) {  // FIXME: encode this in the Package requirements
     DeftLog.settings = [
         ("com.didactek", .debug),
     ]
+    
+    let guru = PlatformDeviceBroker.shared
+
     var radio: TEA5767_Radio? = nil
-    var leds: ShiftLED? = nil
     var temp: MCP9808_TemperatureSensor? = nil
     var servo: PCA9685? = nil
 
+    var leds: ShiftLED? = nil
     let ledCount = 73
 
-    for connection in setupLinks() {
-        switch connection {
-        case .radio(let link):  // 5.1 radio bug
-            radio = TEA5767_Radio(link: link)
-        case .shiftLED(let link):
-            leds = ShiftLED(bus: link, stringLength: ledCount, current: 0.05)
-            leds!.clear()  // in case the LEDs are already lit
-        case .thermometer(let link):
-            temp = MCP9808_TemperatureSensor(link: link)
-        case .servo(link: let link):
-            servo = PCA9685(link: link)
-        }
+    #if true  // want I2C things
+    radio = try? TEA5767_Radio(link: guru.findI2C(usingDefaultsFor: TEA5767_Radio.self))
+    temp = try? MCP9808_TemperatureSensor(link: guru.findI2C(usingDefaultsFor: MCP9808_TemperatureSensor.self))
+    servo = try? PCA9685(link: guru.findI2C(usingDefaultsFor: PCA9685.self))
+    #endif
+
+    #if false  // want SPI things
+    if let spiLink = try? guru.platformSPI(speedHz: 1_000_000) {
+        leds = ShiftLED(bus: spiLink, stringLength: ledCount, current: 0.05)
+        // in case the LEDs are already lit
+        leds!.clear()
     }
+    #endif
+
 
     if let servo = servo {
         servo.set(channel: 15, value: 0.5)  // midpoint
