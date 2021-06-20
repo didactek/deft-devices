@@ -33,7 +33,7 @@ public class MCP9808_TemperatureSensor: I2CTraits {
 
         let result = MCP9808_AmbientTemperatureRegister()
 
-        try! link.writeAndRead(sendFrom: command.storage.bytes, receiveInto: &result.storage.bytes)
+        try! link.writeAndRead(sendFrom: command.packedBytes, receiveInto: &result.packedBytes)
 
         return Double(result.temperatureSixteenthCelsius) / 16.0
         }

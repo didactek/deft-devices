@@ -75,7 +75,7 @@ public class PCA9685: I2CTraits {
         let mode1 = ModeRegister1()
         mode1.autoincrement = true
 
-        writeRegister(startingAt: ModeRegister1.address, values: mode1.storage.bytes)
+        writeRegister(startingAt: ModeRegister1.address, values: mode1.packedBytes)
     }
 
     /// Write to a register.
@@ -149,9 +149,9 @@ public class PCA9685: I2CTraits {
 
         adjustRegisterValue(address: ModeRegister1.address) {
             let register = ModeRegister1()
-            register.storage.bytes[0] = $0
+            register.packedBytes[0] = $0
             register.sleep = true
-            return register.storage.bytes[0]
+            return register.packedBytes[0]
         }
         Thread.sleep(forTimeInterval: 0.05)
     }
@@ -159,9 +159,9 @@ public class PCA9685: I2CTraits {
     func exitSleep() {
         adjustRegisterValue(address: ModeRegister1.address) {
             let register = ModeRegister1()
-            register.storage.bytes[0] = $0
+            register.packedBytes[0] = $0
             register.sleep = false
-            return register.storage.bytes[0]
+            return register.packedBytes[0]
         }
         Thread.sleep(forTimeInterval: 0.05)
     }

@@ -48,7 +48,7 @@ class MCP9808_PointerRegister: ByteDescription {
 
         // case reserved = 0b1xxx  // Reserved(1)
     }
-    @Position(msb: 4, lsb: 0)
+    @Position(msb: 3, lsb: 0)
     var command: RegisterPointer = .temperature
 }
 
@@ -137,7 +137,7 @@ class MCP9808_TemperatureLimitRegister: WordDescription {
     var temperatureQuarterCelsius: Int = 0
 }
 
-/// Current sensor readings: (temperature and alarm states). IRead-only.)
+/// Current sensor readings: (temperature and alarm states). Read-only.
 ///
 /// [datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/25095A.pdf) REGISTER 5-4
 class MCP9808_AmbientTemperatureRegister: WordDescription {

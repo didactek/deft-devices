@@ -41,7 +41,7 @@ public class TEA5767_Radio: I2CTraits {
 
     /// Flush the settings pending in the writeBuffer to the device.
     public func executeRequests() {
-        try! link.write(data: requestBuffer.storage.bytes)
+        try! link.write(data: requestBuffer.packedBytes)
     }
 
     /// Include tuning in the pending request.
@@ -61,7 +61,7 @@ public class TEA5767_Radio: I2CTraits {
     /// The TEA5767 uses a slightly-unusual query pattern: rather than sending a register number (via
     /// I2C write) and then reading its value (I2C read), the TEA5767
     public func updateStatus() {
-        try! link.read(data: &statusBuffer.storage.bytes)
+        try! link.read(data: &statusBuffer.packedBytes)
     }
 
     /// The frequency (in MHz) reported in the last updateStatus
